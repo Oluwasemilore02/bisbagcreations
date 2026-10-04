@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ▼▼▼ PASTE YOUR ADMIN'S UID BETWEEN THE QUOTES ▼▼▼
+    // Firebase console → Authentication → Users → copy the "User UID" of your admin account.
+    // (Add more admins by adding more UIDs separated by commas.)
+    function isAdmin() {
+      return request.auth != null && request.auth.uid in ['p5WfBsZuq5Rl8P2pc0SuCap77tr1'];
+    }
+
+    // Customers may only CREATE an order, and only a well-formed one. They can never read, change or delete orders.
+    function validOrder(d, orderId) {
+      return d.keys().hasOnly(['id','customer','email','phone','address','city','state','notes','items','subtotal','delivery','discount','total','payment','paid','status','source','createdAt'])
+        && d.keys().hasAll(['id','customer','phone','address','city','state','items','subtotal','delivery','discount','total','payment','paid','status','source','createdAt'])
+        && d.id == orderId
+        && orderId.matches('^BBC-[A-Z0-9]{6,12}$')
+        && d.customer is string && d.customer.size() >= 2 && d.customer.size() <= 100
+        && d.phone is string && d.phone.size() >= 10 && d.phone.size() <= 30
+        && (!('email' in d) || (d.email is string && d.email.size() <= 120))
+        && d.address is string && d.address.size() >= 4 && d.address.size() <= 300
+        && d.city is string && d.city.size() >= 1 && d.city.size() <= 80
+        && d.state is string && d.state.size() >= 1 && d.state.size() <= 60
+        && (!('notes' in d) || (d.notes is string && d.notes.size() <= 500))
+        && d.items is list && d.items.size() >= 1 && d.items.size() <= 50
+        && d.subtotal is number && d.delivery is number && d.discount is number && d.total is number
+        && d.subtotal >= 0 && d.delivery >= 0 && d.discount >= 0 && d.total >= 0 && d.total < 100000000
+        && d.total == d.subtotal + d.delivery - d.discount
+        && d.status == 'pending'
+        && d.paid == false
+        && d.source == 'website'
+        && d.payment == 'WhatsApp'
+        && d.createdAt == request.time;
+    }
+    function validContactMessage(d, orderId) {
+      return d.keys().hasOnly(['id','type','customer','email','phone','subject','message','status','source','createdAt'])
+        && d.keys().hasAll(['id','type','customer','email','phone','subject','message','status','source','createdAt'])
+        && d.id == orderId
+        && orderId.matches('^BBC-[A-Z0-9]{6,12}$')
+        && d.type == 'contact_message'
+        && d.customer is string && d.customer.size() >= 2 && d.customer.size() <= 200
+        && d.email is string && d.email.size() <= 120
+        && (d.email == '' || d.email.matches('^[^@ /]+@[^@ /]+\\.[^@ /]+$'))
+        && d.phone is string && d.phone.size() <= 30
+        && d.subject is string && d.subject.size() >= 1 && d.subject.size() <= 100
+        && d.message is string && d.message.size() >= 6 && d.message.size() <= 4000
+        && d.status == 'new'
+        && d.source == 'contact_form'
+        && d.createdAt == request.time;
+    }
+
+    // Product list + store settings: everyone can read, only the admin can change.
+    match /catalog/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Product photos (stored in Firestore so you stay on the free plan).
+    match /productImages/{imageId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && request.resource.data.data is string && request.resource.data.data.size() < 800000;
+      allow delete: if isAdmin();
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAdmin() || validOrder(request.resource.data, orderId) || validContactMessage(request.resource.data, orderId);
+    }
+
+    // Newsletter subscribers
+    match /subscribers/{email} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAdmin() || (
+        request.resource.data.keys().hasOnly(['email','createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email == email
+        && email == email.lower()
+        && email.size() <= 120
+        && email.matches('^[^@ /]+@[^@ /]+\\.[^@ /]+$')
+        && request.resource.data.createdAt == request.time
+      );
+    }
+  }
+}
