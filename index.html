@@ -3455,7 +3455,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
 
     <!-- ANNOUNCEMENT BAR -->
     <div class="ann-bar" id="ann-bar" role="banner">
-      Free delivery on orders over ₦25,000
+      Delivery fees vary by location
     </div>
 
     <!-- NAV -->
@@ -4108,9 +4108,9 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
                   <path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8z" />
                   <circle cx="5.5" cy="18.5" r="2.5" />
                   <circle cx="18.5" cy="18.5" r="2.5" /></svg
-                >Free delivery on orders of
-                <strong id="detail-free-shipping-threshold">₦25,000</strong>
-                or more</span
+                >Delivery fee is based on your location. Standard Lagos fee:
+                <strong id="detail-lagos-delivery-fee">₦3,500</strong>; special
+                area rates may differ.</span
               >
               <span
                 ><svg viewBox="0 0 24 24" aria-hidden="true">
@@ -4259,18 +4259,19 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
               </div>
               <div class="form-grid" style="margin-top: 1rem">
                 <div class="form-group" id="fg-city">
-                  <label for="co-city">City *</label
+                  <label for="co-city">City / Area *</label
                   ><input
                     type="text"
                     id="co-city"
-                    placeholder="e.g. Lagos"
+                    placeholder="e.g. Egbeda"
                     required
                     autocomplete="address-level2"
+                    oninput="updateCheckoutTotals()"
                   /><span class="field-error-msg">Please enter your city</span>
                 </div>
                 <div class="form-group">
                   <label for="co-state">State *</label>
-                  <select id="co-state" required autocomplete="address-level1">
+                  <select id="co-state" required autocomplete="address-level1" onchange="updateCheckoutTotals()">
                     <option value="">Select state</option>
                     <option>Lagos</option>
                     <option>Abuja (FCT)</option>
@@ -4318,8 +4319,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             >
               <strong>No online payment.</strong> Tap <em>Place order</em> and
               we save your order, then you send it to us on WhatsApp. We confirm
-              availability and delivery there, and you pay by bank transfer (or
-              pay on delivery in Lagos).
+              availability and delivery there, and you pay by bank transfer.
             </div>
             <div
               id="checkout-error"
@@ -4621,7 +4621,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
               onclick="toggleFaq(this)"
               aria-expanded="false"
             >
-              Do you offer free shipping?<svg
+              How much is delivery?<svg
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
@@ -4631,11 +4631,11 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                Orders of
-                <span id="faq-free-shipping-threshold">₦25,000</span> or more
-                qualify for free delivery anywhere in Nigeria. Orders below
-                this amount are charged
-                <span id="faq-delivery-fee">₦2,500</span>.
+                Delivery fees are based on your city and state: Egbeda / Lagos
+                axis is <span id="faq-egbeda-fee">₦1,200</span>, other Lagos
+                areas are <span id="faq-lagos-fee">₦3,500</span>, and other
+                states start from <span id="faq-other-state-fee">₦4,500</span>.
+                The exact fee is shown at checkout; some areas may cost more.
               </div>
             </div>
           </div>
@@ -4813,7 +4813,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
               <div class="faq-a-inner">
                 You do not pay on the website. Place your order, send it to us
                 on WhatsApp, and we confirm everything there. You can pay by
-                bank transfer, or pay on delivery for orders within Lagos.
+                bank transfer.
               </div>
             </div>
           </div>
@@ -5192,10 +5192,11 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             business days
           </li>
           <li>
-            Free delivery on orders of
-            <span id="terms-free-shipping-threshold">₦25,000</span> or more.
-            Orders below this amount are charged
-            <span id="terms-delivery-fee">₦2,500</span>.
+            Delivery fees depend on the delivery city and state. Egbeda / Lagos
+            axis is <span id="terms-egbeda-fee">₦1,200</span>, other Lagos
+            areas are <span id="terms-lagos-fee">₦3,500</span>, and other
+            states start from <span id="terms-other-state-fee">₦4,500</span>.
+            Some specific areas may cost more; the exact fee is shown at checkout.
           </li>
           <li>
             We are not responsible for delays caused by third-party couriers or
@@ -5353,7 +5354,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         <div class="payment-icons">
           <span class="payment-icon">ORDER ON WHATSAPP</span
           ><span class="payment-icon">BANK TRANSFER</span
-          ><span class="payment-icon">PAY ON DELIVERY (LAGOS)</span>
+          ><span class="payment-icon">DELIVERY WORLDWIDE(T&C'S)</span>
         </div>
       </div>
     </footer>
@@ -5704,8 +5705,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         const s = settings;
         const txt =
           (s.announcement || "").trim() ||
-          "Free delivery on orders over " +
-            fmt(s.freeShipping) +
+          "Delivery fees vary by location" +
             (s.couponCode
               ? "  ·  Use code " +
                 s.couponCode +
@@ -5714,17 +5714,20 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
                 "% off your first order"
               : "");
         $("ann-bar").textContent = txt;
+        const special = (Array.isArray(s.areaDeliveryFees) ? s.areaDeliveryFees : [])
+          .find((rule) => String(rule.state || "").trim().toLowerCase() === "lagos" &&
+            String(rule.area || "").trim().toLowerCase() === "egbeda");
         [
-          "faq-free-shipping-threshold",
-          "terms-free-shipping-threshold",
-          "detail-free-shipping-threshold",
-        ].forEach((id) => {
+          ["faq-egbeda-fee", special ? special.fee : s.lagosDeliveryFee],
+          ["terms-egbeda-fee", special ? special.fee : s.lagosDeliveryFee],
+          ["faq-lagos-fee", s.lagosDeliveryFee],
+          ["terms-lagos-fee", s.lagosDeliveryFee],
+          ["faq-other-state-fee", s.otherStateDeliveryFee],
+          ["terms-other-state-fee", s.otherStateDeliveryFee],
+          ["detail-lagos-delivery-fee", s.lagosDeliveryFee],
+        ].forEach(([id, amount]) => {
           const el = $(id);
-          if (el) el.textContent = fmt(s.freeShipping);
-        });
-        ["faq-delivery-fee", "terms-delivery-fee"].forEach((id) => {
-          const el = $(id);
-          if (el) el.textContent = fmt(s.deliveryFee);
+          if (el) el.textContent = fmt(amount);
         });
         const n = String(s.whatsapp || "").replace(/\D/g, "");
         if (n)
@@ -5869,8 +5872,12 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             settings = Object.assign({}, BBData.defaults, s || {});
             settings.freeShipping = Number(settings.freeShipping) || 0;
             settings.deliveryFee = Number(settings.deliveryFee) || 0;
+            settings.lagosDeliveryFee = Number.isFinite(Number(settings.lagosDeliveryFee)) ? Number(settings.lagosDeliveryFee) : 3500;
+            settings.otherStateDeliveryFee = Math.max(4500, Number.isFinite(Number(settings.otherStateDeliveryFee)) ? Number(settings.otherStateDeliveryFee) : 4500);
+            settings.areaDeliveryFees = Array.isArray(settings.areaDeliveryFees) ? settings.areaDeliveryFees : BBData.defaults.areaDeliveryFees;
             settings.couponPercent = Number(settings.couponPercent) || 0;
             applySettings();
+            if ($("page-checkout").classList.contains("active")) updateCheckoutTotals();
           },
           () => {},
         );
@@ -6272,18 +6279,27 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           );
       }
 
-      function calcTotals() {
+      function deliveryForLocation(city, state) {
+        const normalized = (value) => String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+        const location = normalized(city);
+        const region = normalized(state);
+        if (!location || !region) return null;
+        const rules = (Array.isArray(settings.areaDeliveryFees) ? settings.areaDeliveryFees : [])
+          .filter((rule) => normalized(rule.state) === region && normalized(rule.area) && location.includes(normalized(rule.area)))
+          .sort((a, b) => normalized(b.area).length - normalized(a.area).length);
+        if (rules.length) {
+          const fee = Math.max(0, Number(rules[0].fee) || 0);
+          return region === "lagos" ? fee : Math.max(settings.otherStateDeliveryFee, fee);
+        }
+        return region === "lagos" ? settings.lagosDeliveryFee : settings.otherStateDeliveryFee;
+      }
+      function calcTotals(city, state) {
         const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
-        const delivery =
-          cart.length === 0
-            ? 0
-            : sub >= settings.freeShipping
-              ? 0
-              : settings.deliveryFee;
+        const delivery = cart.length === 0 ? 0 : deliveryForLocation(city, state);
         const disc = couponApplied
           ? Math.round((sub * settings.couponPercent) / 100)
           : 0;
-        return { sub, delivery, disc, total: sub + delivery - disc };
+        return { sub, delivery, disc, total: sub + (delivery || 0) - disc };
       }
       function renderCart() {
         const c = $("cart-items-container");
@@ -6319,9 +6335,9 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         BBData.hydrateImages(c);
         $("cart-subtotal").textContent = fmt(sub);
         $("cart-delivery").textContent =
-          delivery === 0 ? "Free" : fmt(delivery);
+          delivery === null ? "At checkout" : fmt(delivery);
         $("cart-discount").textContent = disc ? "-" + fmt(disc) : "—";
-        $("cart-total").textContent = fmt(total);
+        $("cart-total").textContent = delivery === null ? "At checkout" : fmt(total);
       }
       function updateCartQty(id, d) {
         const it = cart.find((x) => x.id === id);
@@ -6365,7 +6381,6 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
 
       /* ═══════════ CHECKOUT ═══════════ */
       function renderCheckout() {
-        const t = calcTotals();
         $("checkout-items").innerHTML = cart
           .map(
             (item) => `
@@ -6377,12 +6392,16 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           )
           .join("");
         BBData.hydrateImages($("checkout-items"));
+        updateCheckoutTotals();
+      }
+      function updateCheckoutTotals() {
+        const t = calcTotals($("co-city").value, $("co-state").value);
         $("checkout-subtotal").textContent = fmt(t.sub);
         $("checkout-delivery-label").textContent =
-          t.delivery === 0 ? "Free" : fmt(t.delivery);
+          t.delivery === null ? "Enter city and state" : fmt(t.delivery);
         $("checkout-discount-row").style.display = t.disc ? "flex" : "none";
         $("checkout-discount").textContent = t.disc ? "-" + fmt(t.disc) : "—";
-        $("checkout-total").textContent = fmt(t.total);
+        $("checkout-total").textContent = t.delivery === null ? "Enter location" : fmt(t.total);
       }
       function validateField(id, groupId, validator) {
         const el = $(id),
@@ -6468,8 +6487,8 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         );
       }
       function buildOrder(orderId) {
-        const t = calcTotals();
         const g = (id) => $(id).value.trim();
+        const t = calcTotals(g("co-city"), $("co-state").value);
         return {
           id: orderId,
           customer: g("co-fname") + " " + g("co-lname"),
@@ -6596,6 +6615,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           ].forEach((id) => {
             $(id).value = "";
           });
+          $("co-state").value = "";
           if (typeof gtag !== "undefined")
             gtag("event", "purchase", {
               transaction_id: order.id,
@@ -6624,7 +6644,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           : "Almost there!";
         $("order-number").textContent = "Order #" + o.id;
         $("success-message").textContent = saved
-          ? "Your order is saved. One last step: tap the button below to send it to us on WhatsApp. We will confirm availability and delivery there, and arrange payment by bank transfer (or pay on delivery in Lagos)."
+          ? "Your order is saved. One last step: tap the button below to send it to us on WhatsApp. We will confirm availability and delivery there, and arrange payment by bank transfer."
           : "Tap the button below to send your order to us on WhatsApp.";
         $("success-warning").style.display = saved ? "none" : "block";
         $("success-wa").href =

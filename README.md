@@ -44,11 +44,12 @@ First sign-in → **Products** → _Import 24 sample products_ (or _Start empty_
 - `www.bisbagcreations.com` → your real domain in `index.html` (canonical + og tags), `sitemap.xml`, `robots.txt`.
 - Add `og-image.jpg` (1200×630) to the root for link previews.
 - **Placeholder facts:** "500+ bags sold", "4.9★", " years", the Team section, and the sample products' names, prices, stock, ratings and review counts. Set ratings/reviews to 0 to hide them.
-- Admin → Settings: WhatsApp number, announcement bar, delivery fee/threshold, coupon, social links (all go live instantly).
+- Admin → Settings: WhatsApp number, announcement bar, Lagos delivery fee, other-state minimum, specific city/area fee rules, coupon, and social links. Location-based delivery rates are shown at checkout and do not become free based on order total.
 
 ## How it works
 
 - **Orders:** saved to Firestore (`orders`), then the customer taps _Send order on WhatsApp_. If Firebase is unreachable, the order still goes out through the WhatsApp message with the same order ID.
+- **Receipts:** Admin → Orders → Receipt printer → enter the order ID. The printable receipt includes customer, item, total, order status, and payment state whether payment is pending or received.
 - **Stock:** taken off when you set an order to _Processing_ (or later); returned if you cancel or delete it.
 - **Photos:** resized in the browser and stored in Firestore (`productImages`), so you stay on the free Spark plan. (Firebase Storage now needs the paid Blaze plan.)
 - **Price check:** pending orders whose prices don't match your catalogue show **⚠ check prices** in the admin.

@@ -10,7 +10,9 @@
   var WRITE_TIMEOUT = window.BB_WRITE_TIMEOUT_MS || 5000;
   var HOLD = ['processing', 'shipped', 'delivered']; // order statuses that take stock off the shelf
   var DEFAULTS = {
-    whatsapp: '2348023920709', announcement: '', freeShipping: 25000, deliveryFee: 2500,
+    whatsapp: '2348023920709', announcement: '', freeShipping: 25000, deliveryFee: 3500,
+    lagosDeliveryFee: 3500, otherStateDeliveryFee: 4500,
+    areaDeliveryFees: [{ state: 'Lagos', area: 'Egbeda', label: 'Egbeda / Lagos axis', fee: 1200 }],
     couponCode: 'WELCOME10', couponPercent: 10, instagram: '', facebook: '', x: '', tiktok: ''
   };
 

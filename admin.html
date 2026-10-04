@@ -4,6 +4,13 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="robots" content="noindex, nofollow"/>
+<link rel="manifest" href="admin.webmanifest"/>
+<meta name="theme-color" content="#0f1117"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Bisbag Admin"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <title>Bisbag Admin</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a1814'/><text y='.9em' font-size='72' x='12' fill='%23c8421a'>B</text></svg>"/>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -285,8 +292,24 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
 .live-pill.demo{color:var(--amber)}.live-pill.demo i{background:var(--amber)}
 .live-pill.offline{color:var(--red)}.live-pill.offline i{background:var(--red)}
 .toast{z-index:10000}
-@media(max-width:800px){.sidebar{display:none}.content{padding:1rem}.form-row,.form-row.three{grid-template-columns:1fr}.topbar{padding:0 1rem}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(max-width:800px){
+  .main-layout{flex-direction:column}
+  .sidebar{display:flex;position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;height:auto;flex-direction:row;align-items:stretch;overflow-x:auto;overflow-y:hidden;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-right:none;border-top:1px solid var(--border);z-index:150;-webkit-overflow-scrolling:touch}
+  .sidebar-section{display:flex;flex-direction:row;gap:2px;padding:0}
+  .sidebar-section-label,.sidebar-bottom{display:none}
+  .nav-item{flex-direction:column;justify-content:center;gap:3px;min-width:66px;padding:7px 10px;font-size:.64rem;text-align:center;white-space:nowrap}
+  .nav-item svg{width:20px;height:20px}
+  .nav-badge{position:absolute;top:1px;right:8px;margin:0}
+  .content{padding:1rem 1rem 96px}
+  .form-row,.form-row.three{grid-template-columns:1fr}
+  .topbar{padding:0 .8rem}.topbar-logo{font-size:1.05rem}.topbar-badge{display:none}
+  .page-header{flex-direction:column;align-items:stretch}
+  .header-actions{width:100%}.header-actions .btn{flex:1;justify-content:center}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .toast{left:1rem;right:1rem;bottom:88px;min-width:0;max-width:none}
+  .modal-backdrop{align-items:flex-end;padding:0}
+  .modal{max-width:100%;max-height:92vh;border-radius:16px 16px 0 0}
+}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -299,7 +322,7 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
     <label class="login-label" for="login-pass">Password</label>
     <input class="login-input" type="password" id="login-pass" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
     <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
-    <div class="login-err" id="login-err"></div>
+    <div class="login-err" id="login-err" role="alert" aria-live="assertive"></div>
     <div id="login-demo" style="display:none;margin-top:1rem;font-size:0.75rem;color:var(--amber);text-align:center;line-height:1.6">Demo mode: Firebase is not connected, so any email and password will work and data stays in this browser.</div>
   </div>
 </div>
@@ -308,9 +331,9 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
   <div class="topbar">
     <div class="topbar-left"><div class="topbar-logo">Bis<span>bag</span></div><div class="topbar-badge">Admin</div></div>
     <div class="topbar-right">
+      <button class="btn btn-secondary btn-sm" id="install-btn" style="display:none" onclick="installApp()">Install app</button>
       <span id="live-pill" class="live-pill"><i></i><span id="live-text">Live</span></span>
       <button class="topbar-icon-btn" id="sound-btn" title="New-order sound" onclick="toggleSound()" style="font-size:0.85rem">🔔</button>
-      <div class="topbar-icon-btn" title="Refresh" onclick="refreshAll()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></div>
       <button class="logout-btn" onclick="doLogout()">Log Out</button>
     </div>
   </div>
@@ -367,6 +390,18 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
         <div class="page-header">
           <div><div class="page-title">Orders</div><div class="page-subtitle">Track and fulfil customer orders</div></div>
           <div class="header-actions"><button class="btn btn-secondary" onclick="exportCSV('orders')">Export CSV</button><button class="btn btn-primary" onclick="openAddOrder()">+ Add order</button></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header"><span class="card-title">Receipt printer</span></div>
+          <div class="card-body">
+            <form onsubmit="event.preventDefault();lookupReceipt()">
+              <div style="display:flex;gap:0.6rem;max-width:620px;flex-wrap:wrap">
+                <input class="form-input" id="receipt-order-id" type="search" placeholder="Enter order ID (e.g. BBC-...)" aria-label="Order ID for receipt" autocomplete="off" style="flex:1;min-width:220px"/>
+                <button class="btn btn-primary" id="receipt-lookup-btn" type="submit">Find receipt</button>
+              </div>
+            </form>
+            <div id="receipt-lookup-message" role="status" aria-live="polite" style="font-size:0.78rem;color:var(--text2);margin-top:0.65rem">Enter an order ID to print a receipt for a pending or paid order.</div>
+          </div>
         </div>
         <div class="filter-bar">
           <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" placeholder="Search orders or customers..." oninput="filterOrders(this.value)"/></div>
@@ -442,7 +477,8 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
           <div class="card"><div class="card-header"><span class="card-title">Store settings</span></div><div class="card-body">
             <div class="form-row full"><div class="form-group"><label class="form-label">WhatsApp number (orders are sent here)</label><input class="form-input" id="st-whatsapp" placeholder="08023920709"/></div></div>
             <div class="form-row full"><div class="form-group"><label class="form-label">Top announcement bar (leave empty for automatic text)</label><input class="form-input" id="st-announcement" maxlength="160"/></div></div>
-            <div class="form-row"><div class="form-group"><label class="form-label">Free delivery from (₦)</label><input class="form-input" id="st-freeShipping" type="number" min="0"/></div><div class="form-group"><label class="form-label">Delivery fee (₦)</label><input class="form-input" id="st-deliveryFee" type="number" min="0"/></div></div>
+            <div class="form-row"><div class="form-group"><label class="form-label">Standard Lagos fee (₦)</label><input class="form-input" id="st-lagosDeliveryFee" type="number" min="0"/></div><div class="form-group"><label class="form-label">Other states — minimum (₦)</label><input class="form-input" id="st-otherStateDeliveryFee" type="number" min="4500"/></div></div>
+            <div class="form-row full"><div class="form-group"><label class="form-label">Specific area fees</label><div style="font-size:0.78rem;color:var(--text3);margin-bottom:0.65rem">A rule matches when the checkout state matches and the city/area contains its keyword. Outside Lagos, specific fees cannot be lower than the minimum above.</div><div id="st-area-rules"></div><button class="btn btn-secondary btn-sm" type="button" onclick="addAreaFeeRule()">+ Add area fee</button></div></div>
             <div class="form-row"><div class="form-group"><label class="form-label">Coupon code (empty = none)</label><input class="form-input" id="st-couponCode" maxlength="20"/></div><div class="form-group"><label class="form-label">Coupon discount (%)</label><input class="form-input" id="st-couponPercent" type="number" min="0" max="90"/></div></div>
             <div class="form-label" style="margin:0.6rem 0 6px">Social links (full https:// address; empty hides the icon)</div>
             <div class="form-row"><div class="form-group"><input class="form-input" id="st-instagram" placeholder="Instagram URL"/></div><div class="form-group"><input class="form-input" id="st-facebook" placeholder="Facebook URL"/></div></div>
@@ -501,18 +537,20 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
   <div class="modal-header"><span class="modal-title">Add order</span><button class="modal-close" onclick="closeModal('add-order-modal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
   <div class="modal-body">
     <div class="form-row"><div class="form-group"><label class="form-label">Customer name *</label><input class="form-input" id="ao-name"/></div><div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="ao-phone" type="tel"/></div></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="ao-email" type="email"/></div><div class="form-group"><label class="form-label">City</label><input class="form-input" id="ao-city"/></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="ao-email" type="email"/></div><div class="form-group"><label class="form-label">State</label><input class="form-input" id="ao-state" placeholder="e.g. Lagos"/></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">City / area</label><input class="form-input" id="ao-city" placeholder="e.g. Egbeda"/></div></div>
     <div class="form-row full"><div class="form-group"><label class="form-label">Delivery address</label><input class="form-input" id="ao-address"/></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Payment</label><select class="form-select" id="ao-payment"><option>WhatsApp</option><option>Bank Transfer</option><option>Pay on Delivery</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="ao-status"><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option></select></div></div>
     <div class="form-label" style="margin-bottom:6px">Items *</div>
     <div id="ao-items"></div>
     <button class="btn btn-secondary btn-sm" type="button" onclick="addOrderRow()">+ Add item</button>
     <div class="form-row full" style="margin-top:1rem"><div class="form-group"><label class="form-label">Notes</label><input class="form-input" id="ao-notes"/></div></div>
-    <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--text3)">Delivery is free from ₦25,000, otherwise ₦2,500. Stock is reduced when the status is Processing or later.</div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--text3)">Delivery is based on the city and state. Stock is reduced when the status is Processing or later.</div>
   </div>
   <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('add-order-modal')">Cancel</button><button class="btn btn-primary" onclick="saveManualOrder()">Save order</button></div>
 </div></div>
 
+<div id="ios-hint" style="display:none;position:fixed;left:12px;right:12px;bottom:88px;z-index:9000;padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;font-size:.8rem;color:var(--text);line-height:1.6">To install this app on iPhone: tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>. <button class="btn btn-secondary btn-sm" style="margin-left:6px" onclick="dismissIosHint()">Got it</button></div>
 <div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toast-msg"></span></div>
 
 <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
@@ -575,17 +613,45 @@ function setStat(id,val,format){
 
 /* ---------- sign in / out ---------- */
 function authMsg(e){
-  const m={'auth/invalid-credential':'Incorrect email or password.','auth/wrong-password':'Incorrect email or password.','auth/user-not-found':'Incorrect email or password.','auth/invalid-email':'Please enter a valid email address.','auth/too-many-requests':'Too many attempts. Please wait a few minutes and try again.','auth/network-request-failed':'Network problem. Check your connection.','auth/user-disabled':'This account has been disabled.'};
+  const m={
+    'auth/invalid-credential':'Incorrect email or password.',
+    'auth/wrong-password':'Incorrect email or password.',
+    'auth/user-not-found':'Incorrect email or password.',
+    'auth/invalid-email':'Please enter a valid email address.',
+    'auth/too-many-requests':'Too many attempts. Please wait a few minutes and try again.',
+    'auth/network-request-failed':'Network problem. Check your connection and try again.',
+    'auth/user-disabled':'This account has been disabled.',
+    'auth/unauthorized-domain':'This website is not authorized to sign in. Add its domain under Firebase Authentication → Settings → Authorized domains.',
+    'auth/operation-not-allowed':'Email/password sign-in is disabled. Enable it under Firebase Authentication → Sign-in method.',
+    'auth/api-key-not-valid.-please-pass-a-valid-api-key.':'Firebase configuration is invalid. Check the web app API key in firebase-config.js.',
+    'auth/request-timeout':'Sign-in is taking too long. Check your connection and try again.'
+  };
   return m[e&&e.code]||(e&&e.message)||'Sign-in failed.';
 }
 async function doLogin(){
   const err=$('login-err'),btn=$('login-btn');
+  if(btn.disabled)return;
   const email=$('login-email').value.trim(),pw=$('login-pass').value;
   if(!email||!pw){err.textContent='Enter your email and password.';err.style.display='block';return;}
   setBtnLoading(btn,true,'Signing in…');
-  try{await BBData.signIn(email,pw);err.style.display='none';}
-  catch(e){err.textContent=authMsg(e);err.style.display='block';$('login-pass').value='';$('login-pass').focus();}
-  setBtnLoading(btn,false);
+  err.style.display='none';
+  let timeout;
+  try{
+    await Promise.race([
+      BBData.signIn(email,pw),
+      new Promise((resolve,reject)=>{
+        timeout=setTimeout(()=>reject({code:'auth/request-timeout'}),15000);
+      })
+    ]);
+  }catch(e){
+    err.textContent=authMsg(e);
+    err.style.display='block';
+    $('login-pass').value='';
+    $('login-pass').focus();
+  }finally{
+    clearTimeout(timeout);
+    setBtnLoading(btn,false);
+  }
 }
 function doLogout(){BBData.signOut();}
 function showLogin(){
@@ -673,6 +739,7 @@ function showPanel(name){
   renderAll();
 }
 function updateNavBadges(){
+  try{if(pending>0&&navigator.setAppBadge)navigator.setAppBadge(pending);else if(navigator.clearAppBadge)navigator.clearAppBadge();}catch(e){}
   const pending=purchaseOrders().filter(o=>o.status==='pending').length;
   const b=$('nav-orders-badge');b.textContent=pending;b.style.display=pending?'':'none';
   const alert=products.filter(p=>p.active!==false&&p.stock<=LOW).length;
@@ -757,6 +824,41 @@ function applyOrderFilters(){
     return '<tr class="'+(flashIds[o.id]?'row-flash':'')+'"><td class="td-name" style="font-size:0.8rem">'+esc(o.id)+' '+source+'</td><td><div style="font-size:0.82rem;font-weight:500;color:var(--text)">'+esc(o.customer)+'</div><div style="font-size:0.72rem;color:var(--text3)">'+esc(contact?o.subject:(o.city||''))+'</div></td><td style="font-size:0.78rem">'+items+'</td><td style="font-weight:600;color:var(--text)">'+total+'</td><td>'+method+'</td><td>'+statusPill(o.status)+'</td><td style="font-size:0.78rem">'+dstr(o)+'</td><td><button class="btn btn-secondary btn-sm" data-id="'+esc(o.id)+'" onclick="viewOrder(this.dataset.id)">View</button></td></tr>';
   }).join(''):emptyRow(8,orders.length?'No orders match your filters':'No orders yet.'));
 }
+function receiptDate(o){
+  const date=new Date(o.date);
+  return Number.isNaN(date.getTime())?'—':date.toLocaleString('en-NG',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function lookupReceipt(){
+  const input=$('receipt-order-id'),message=$('receipt-lookup-message');
+  const query=input.value.trim().toLowerCase();
+  if(!query){message.textContent='Enter an order ID to find its receipt.';message.style.color='var(--amber)';input.focus();return;}
+  if(!ordersLoaded){message.textContent='Orders are still loading. Please try again in a moment.';message.style.color='var(--amber)';return;}
+  const order=orders.find(o=>String(o.id||'').trim().toLowerCase()===query);
+  if(!order){message.textContent='No order found with that ID. Check the ID and try again.';message.style.color='var(--red)';return;}
+  if(isContactMessage(order)||!Array.isArray(order.items)){message.textContent='This ID belongs to a contact message, not a purchasable order.';message.style.color='var(--amber)';return;}
+  message.textContent='Receipt found for '+order.id+'. Opening print preview…';message.style.color='var(--green)';
+  printOrderReceipt(order);
+}
+function printOrderReceipt(o){
+  const printWindow=window.open('','_blank','width=760,height=800');
+  if(!printWindow){toast('Allow pop-ups to print the receipt.','error');return;}
+  const items=o.items.map(item=>'<tr><td>'+esc(item.name)+'</td><td class="qty">'+esc(item.qty)+'</td><td class="money">'+fmtN(item.price)+'</td><td class="money">'+fmtN(Number(item.price||0)*Number(item.qty||0))+'</td></tr>').join('');
+  const paymentState=o.paid?'PAYMENT RECEIVED':'PAYMENT PENDING';
+  const delivery=Number(o.delivery||0);
+  const discount=Number(o.discount||0);
+  const amount=(label,value,extra)=>'<div class="total-row '+(extra||'')+'"><span>'+label+'</span><strong>'+value+'</strong></div>';
+  const markup='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Receipt '+esc(o.id)+'</title><style>'
+    +'*{box-sizing:border-box}body{margin:0;padding:28px;background:#f4f4f4;color:#191919;font:14px/1.5 Arial,sans-serif}.receipt{max-width:680px;margin:0 auto;padding:38px;background:#fff;border:1px solid #ddd}.brand{font-size:22px;font-weight:700;letter-spacing:.02em}.brand span{color:#c8421a}.muted{color:#666}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:2px solid #222;padding-bottom:22px}.receipt-title{text-align:right}.receipt-title h1{font-size:23px;margin:0 0 6px}.payment{display:inline-block;padding:6px 10px;border:1px solid '+(o.paid?'#16804c':'#b87500')+';color:'+(o.paid?'#126b40':'#8b5900')+';font-size:11px;font-weight:bold;letter-spacing:.07em}.meta{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:22px 0}.meta h2{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#777;margin:0 0 7px}.meta p{margin:2px 0;overflow-wrap:anywhere}.items{width:100%;border-collapse:collapse;margin:8px 0 18px}.items th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#666;border-bottom:1px solid #bbb;padding:9px 5px}.items td{padding:10px 5px;border-bottom:1px solid #e5e5e5}.qty{text-align:center}.money{text-align:right;white-space:nowrap}.totals{max-width:310px;margin-left:auto}.total-row{display:flex;justify-content:space-between;padding:5px 0}.grand{font-size:18px;border-top:2px solid #222;margin-top:7px;padding-top:11px}.notes{margin-top:22px;padding:12px;background:#f6f4f1;white-space:pre-wrap;overflow-wrap:anywhere}.footer{margin-top:28px;padding-top:14px;border-top:1px solid #ddd;text-align:center;font-size:12px;color:#666}.actions{text-align:center;margin:18px auto}.actions button{padding:10px 18px;border:0;background:#1a1814;color:#fff;border-radius:6px;font-weight:bold;cursor:pointer}@media print{body{width:72mm;padding:0;background:#fff;font-size:11px}.receipt{width:72mm;max-width:none;border:0;padding:0}.top{gap:6px;padding-bottom:12px}.receipt-title h1{font-size:16px}.payment{font-size:9px;padding:4px}.meta{gap:8px;padding:12px 0}.items{font-size:10px}.items th,.items td{padding:6px 2px}.totals{max-width:none}.grand{font-size:15px}.notes{padding:8px}.actions{display:none}}@media(max-width:520px){body{padding:10px}.receipt{padding:20px}.top{gap:10px}.meta{gap:12px}.receipt-title h1{font-size:18px}.items{font-size:12px}}'
+    +'</style></head><body><main class="receipt"><header class="top"><div><div class="brand">Bis<span>bag</span> Creations</div><div class="muted">Lagos, Nigeria</div></div><div class="receipt-title"><h1>Order Receipt</h1><div><strong>'+esc(o.id)+'</strong></div><div class="muted">'+esc(receiptDate(o))+'</div><p><span class="payment">'+paymentState+'</span></p></div></header>'
+    +'<section class="meta"><div><h2>Customer</h2><p><strong>'+esc(o.customer||'—')+'</strong></p>'+(o.phone?'<p>'+esc(o.phone)+'</p>':'')+(o.email?'<p>'+esc(o.email)+'</p>':'')+(o.address||o.city||o.state?'<p>'+esc([o.address,o.city,o.state].filter(Boolean).join(', '))+'</p>':'')+'</div><div><h2>Order details</h2><p>Order status: <strong>'+esc(String(o.status||'pending').replace(/\b\w/g,c=>c.toUpperCase()))+'</strong></p><p>Payment method: '+esc(o.payment||'Not specified')+'</p>'+(o.source==='manual'?'<p>Source: Admin order</p>':'')+'</div></section>'
+    +'<table class="items"><thead><tr><th>Item</th><th class="qty">Qty</th><th class="money">Price</th><th class="money">Amount</th></tr></thead><tbody>'+items+'</tbody></table>'
+    +'<section class="totals">'+amount('Subtotal',fmtN(o.subtotal))+amount('Delivery',delivery?fmtN(delivery):'Free')+(discount?amount('Discount','−'+fmtN(discount)):'')+amount('Total',fmtN(o.total),'grand')+'</section>'
+    +(o.notes?'<div class="notes"><strong>Notes</strong><br>'+esc(o.notes)+'</div>':'')
+    +'<footer class="footer">Thank you for shopping with Bisbag Creations.</footer></main><div class="actions"><button onclick="window.print()">Print receipt</button></div><\/body></html>';
+  printWindow.onload=function(){printWindow.focus();printWindow.print();};
+  printWindow.onafterprint=function(){printWindow.close();};
+  printWindow.document.open();printWindow.document.write(markup);printWindow.document.close();
+}
 function viewOrder(id){
   const o=orders.find(x=>x.id===id);if(!o)return;
   if(isContactMessage(o)){
@@ -800,7 +902,7 @@ function deleteOrder(id){
 }
 function openAddOrder(){
   if(!products.length){toast('Add a product first','error');return;}
-  ['ao-name','ao-phone','ao-email','ao-city','ao-address','ao-notes'].forEach(id=>$(id).value='');
+  ['ao-name','ao-phone','ao-email','ao-city','ao-state','ao-address','ao-notes'].forEach(id=>$(id).value='');
   $('ao-items').innerHTML='';addOrderRow();openModal('add-order-modal');
 }
 function addOrderRow(){
@@ -811,6 +913,8 @@ function addOrderRow(){
 function saveManualOrder(){
   const name=$('ao-name').value.trim(),phone=$('ao-phone').value.trim();
   if(name.length<2||phone.replace(/\D/g,'').length<10){toast('Enter the customer name and a valid phone number','error');return;}
+  const city=$('ao-city').value.trim(),state=$('ao-state').value.trim();
+  if(!city||!state){toast('Enter the delivery city/area and state','error');return;}
   const items=[];
   document.querySelectorAll('#ao-items > div').forEach(r=>{
     const p=products.find(x=>x.id===parseInt(r.querySelector('.ao-prod').value,10));
@@ -819,8 +923,8 @@ function saveManualOrder(){
   });
   if(!items.length){toast('Add at least one item','error');return;}
   const sub=items.reduce((s,i)=>s+i.price*i.qty,0);
-  const delivery=sub>=settings.freeShipping?0:settings.deliveryFee;
-  const o={id:'BBC-'+BBData.rid(5).toUpperCase()+Date.now().toString(36).toUpperCase().slice(-3),customer:name,email:$('ao-email').value.trim(),phone:phone,address:$('ao-address').value.trim(),city:$('ao-city').value.trim(),state:'',notes:$('ao-notes').value.trim(),items:items,subtotal:sub,delivery:delivery,discount:0,total:sub+delivery,payment:$('ao-payment').value,paid:false,status:$('ao-status').value,source:'manual'};
+  const delivery=deliveryForLocation(city,state);
+  const o={id:'BBC-'+BBData.rid(5).toUpperCase()+Date.now().toString(36).toUpperCase().slice(-3),customer:name,email:$('ao-email').value.trim(),phone:phone,address:$('ao-address').value.trim(),city:city,state:state,notes:$('ao-notes').value.trim(),items:items,subtotal:sub,delivery:delivery,discount:0,total:sub+delivery,payment:$('ao-payment').value,paid:false,status:$('ao-status').value,source:'manual'};
   return guard(async()=>{await BBData.createManualOrder(o);closeModal('add-order-modal');toast('Order recorded');});
 }
 
@@ -966,22 +1070,67 @@ function renderAnalytics(){
 }
 
 /* ---------- settings ---------- */
-const SETTING_KEYS=['whatsapp','announcement','freeShipping','deliveryFee','couponCode','couponPercent','instagram','facebook','x','tiktok'];
+const SETTING_KEYS=['whatsapp','announcement','freeShipping','deliveryFee','lagosDeliveryFee','otherStateDeliveryFee','areaDeliveryFees','couponCode','couponPercent','instagram','facebook','x','tiktok'];
 function fillSettingsForm(){
   SETTING_KEYS.forEach(k=>{const el=$('st-'+k);if(el)el.value=settings[k]==null?'':settings[k];});
+  renderAreaFeeRules();
   $('st-uid').textContent=user?user.uid:'';$('st-email').textContent=user?user.email:'';
   $('st-project').textContent=BBData.mode==='firebase'?BBData.projectId:'Demo mode (no Firebase)';
+}
+function deliveryForLocation(city,state){
+  const normalized=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const region=normalized(state),location=normalized(city),lagos=region==='lagos';
+  const rules=(Array.isArray(settings.areaDeliveryFees)?settings.areaDeliveryFees:[])
+    .filter(rule=>normalized(rule.state)===region&&normalized(rule.area)&&location.includes(normalized(rule.area)))
+    .sort((a,b)=>normalized(b.area).length-normalized(a.area).length);
+  if(rules.length){
+    const fee=Math.max(0,Number(rules[0].fee)||0);
+    return lagos?fee:Math.max(Number(settings.otherStateDeliveryFee)||4500,fee);
+  }
+  const base=lagos?Number(settings.lagosDeliveryFee):Number(settings.otherStateDeliveryFee);
+  return Number.isFinite(base)?(lagos?base:Math.max(4500,base)):lagos?3500:4500;
+}
+function renderAreaFeeRules(){
+  const root=$('st-area-rules');
+  const rules=Array.isArray(settings.areaDeliveryFees)?settings.areaDeliveryFees:[];
+  root.innerHTML=rules.map((rule,i)=>'<div class="form-row area-fee-row" style="align-items:center;margin-bottom:0.5rem"><div class="form-group"><input class="form-input area-fee-state" aria-label="State for area fee '+(i+1)+'" placeholder="State (e.g. Lagos)" value="'+esc(rule.state)+'"/></div><div class="form-group"><input class="form-input area-fee-area" aria-label="City or area keyword '+(i+1)+'" placeholder="City/area keyword (e.g. Egbeda)" value="'+esc(rule.area)+'"/></div><div class="form-group"><input class="form-input area-fee-amount" aria-label="Delivery fee for area '+(i+1)+'" type="number" min="0" value="'+esc(rule.fee)+'"/></div><button class="btn btn-danger btn-sm" type="button" aria-label="Remove area fee '+(i+1)+'" onclick="this.closest(\'.area-fee-row\').remove()">×</button></div>').join('');
+}
+function addAreaFeeRule(state='',area='',fee=''){
+  const rule={state:state,area:area,fee:fee};
+  settings.areaDeliveryFees=Array.isArray(settings.areaDeliveryFees)?settings.areaDeliveryFees.slice():[];
+  settings.areaDeliveryFees.push(rule);
+  renderAreaFeeRules();
+}
+function readAreaFeeRules(){
+  const normalized=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const rows=Array.from(document.querySelectorAll('.area-fee-row'));
+  const rules=[];
+  for(const row of rows){
+    const state=row.querySelector('.area-fee-state').value.trim();
+    const area=row.querySelector('.area-fee-area').value.trim();
+    const raw=row.querySelector('.area-fee-amount').value.trim();
+    const fee=Number(raw);
+    if(!state||!area||raw===''||!Number.isFinite(fee)||fee<0){toast('Complete each area fee rule with a state, area keyword, and valid fee','error');return null;}
+    const minimumOtherFee=Number($('st-otherStateDeliveryFee').value)||4500;
+    if(state.toLowerCase()!=='lagos'&&fee<minimumOtherFee){toast('Specific fees outside Lagos cannot be below the current minimum','error');return null;}
+    const key=normalized(state)+'|'+normalized(area);
+    if(rules.some(rule=>(normalized(rule.state)+'|'+normalized(rule.area))===key)){toast('Each state and area keyword combination must be unique','error');return null;}
+    rules.push({state:state,area:area,fee:fee});
+  }
+  return rules;
 }
 function saveSettings(){
   const v=k=>$('st-'+k).value.trim();
   const wa=waPhone(v('whatsapp'));
   if(wa.length<10){toast('Enter a valid WhatsApp number','error');return;}
   const num=(k,min,max)=>{const n=parseInt(v(k),10);return isNaN(n)?null:Math.min(max,Math.max(min,n));};
-  const free=num('freeShipping',0,100000000),fee=num('deliveryFee',0,1000000),pct=num('couponPercent',0,90);
-  if(free===null||fee===null){toast('Enter the delivery amounts','error');return;}
+  const lagosFee=num('lagosDeliveryFee',0,1000000),otherFee=num('otherStateDeliveryFee',4500,1000000),pct=num('couponPercent',0,90);
+  if(lagosFee===null||otherFee===null){toast('Enter valid delivery amounts','error');return;}
+  const areaFees=readAreaFeeRules();
+  if(areaFees===null)return;
   const urls={};
   for(const k of ['instagram','facebook','x','tiktok']){const u=v(k);if(u&&!/^https:\/\/[^\s]+$/.test(u)){toast('Social links must start with https://','error');return;}urls[k]=u;}
-  const data=Object.assign({whatsapp:wa,announcement:v('announcement'),freeShipping:free,deliveryFee:fee,couponCode:v('couponCode').toUpperCase().replace(/[^A-Z0-9]/g,''),couponPercent:pct===null?0:pct},urls);
+  const data=Object.assign({whatsapp:wa,announcement:v('announcement'),lagosDeliveryFee:lagosFee,otherStateDeliveryFee:otherFee,areaDeliveryFees:areaFees,couponCode:v('couponCode').toUpperCase().replace(/[^A-Z0-9]/g,''),couponPercent:pct===null?0:pct},urls);
   return guard(async()=>{
     const btn=$('st-save-btn');setBtnLoading(btn,true,'Saving…');
     try{await BBData.saveSettings(data);settings=Object.assign({},settings,data);fillSettingsForm();toast('Store settings saved and live');}
@@ -1046,6 +1195,22 @@ function toast(msg,type,ms){
   t.className='toast'+(type==='error'?' error':'');t.classList.add('show');
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),ms||3400);
 }
+
+/* ---------- installable app ---------- */
+let installEvt=null;
+if('serviceWorker' in navigator&&location.protocol!=='file:'){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw-admin.js',{scope:'./admin.html'}).catch(e=>console.warn('Service worker not registered',e));});
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;$('install-btn').style.display='inline-flex';});
+window.addEventListener('appinstalled',()=>{installEvt=null;$('install-btn').style.display='none';toast('App installed. Open it from your home screen.');});
+function installApp(){if(!installEvt)return;installEvt.prompt();installEvt.userChoice.then(()=>{installEvt=null;$('install-btn').style.display='none';});}
+function dismissIosHint(){$('ios-hint').style.display='none';try{localStorage.setItem('bb_ios_hint','1');}catch(e){}}
+(function(){
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
+  let seen=false;try{seen=localStorage.getItem('bb_ios_hint')==='1';}catch(e){}
+  if(ios&&!standalone&&!seen)setTimeout(()=>{$('ios-hint').style.display='block';},2500);
+})();
 
 /* ---------- boot ---------- */
 BBData.onAuth(u=>{user=u;if(u)startApp();else showLogin();});
