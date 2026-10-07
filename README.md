@@ -42,7 +42,7 @@ First sign-in → **Products** → _Import 24 sample products_ (or _Start empty_
 ## Before announcing — replace these
 
 - `www.bisbagcreations.com` → your real domain in `index.html` (canonical + og tags), `sitemap.xml`, `robots.txt`.
-- Add `og-image.jpg` (1200×630) to the root for link previews.
+- Add `images/og-image.jpg` (1200×630) for link previews.
 - **Placeholder facts:** "500+ bags sold", "4.9★", " years", the Team section, and the sample products' names, prices, stock, ratings and review counts. Set ratings/reviews to 0 to hide them.
 - Admin → Settings: WhatsApp number, announcement bar, Lagos delivery fee, other-state minimum, specific city/area fee rules, coupon, and social links. Location-based delivery rates are shown at checkout and do not become free based on order total.
 
