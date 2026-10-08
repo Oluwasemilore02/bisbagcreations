@@ -1318,6 +1318,207 @@
         background: var(--accent-hover);
       }
 
+      /* ─── WELCOME CAMPAIGN ─── */
+      #welcome-campaign[hidden] {
+        display: none;
+      }
+      #welcome-campaign {
+        position: fixed;
+        inset: 0;
+        z-index: 10010;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(26, 24, 20, 0.68);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      #welcome-campaign.is-open {
+        opacity: 1;
+      }
+      .welcome-card {
+        position: relative;
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        width: min(900px, 100%);
+        max-height: min(680px, calc(100vh - 48px));
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 22px;
+        background: #fbf8f3;
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.3);
+        transform: translateY(18px) scale(0.985);
+        transition: transform 0.35s cubic-bezier(0.2, 0.75, 0.25, 1);
+      }
+      #welcome-campaign.is-open .welcome-card {
+        transform: translateY(0) scale(1);
+      }
+      .welcome-visual {
+        position: relative;
+        min-height: 530px;
+        overflow: hidden;
+        background: #d7c8b7;
+      }
+      .welcome-visual::after {
+        position: absolute;
+        inset: 35% 0 0;
+        background: linear-gradient(transparent, rgba(30, 24, 19, 0.66));
+        content: "";
+      }
+      .welcome-visual img {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+        object-fit: cover;
+        object-position: center;
+      }
+      .welcome-visual-caption {
+        position: absolute;
+        z-index: 1;
+        right: 28px;
+        bottom: 26px;
+        left: 28px;
+        color: white;
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-style: italic;
+        line-height: 1.12;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.24);
+      }
+      .welcome-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow-y: auto;
+        padding: 58px 54px 48px;
+      }
+      .welcome-close {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border: 1px solid #e8e0d6;
+        border-radius: 50%;
+        background: #fff;
+        color: var(--dark);
+        font-size: 1.45rem;
+        line-height: 1;
+        transition:
+          color 0.2s ease,
+          border-color 0.2s ease,
+          transform 0.2s ease;
+      }
+      .welcome-close:hover {
+        transform: rotate(90deg);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .welcome-eyebrow {
+        margin-bottom: 14px;
+        color: var(--accent);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .welcome-content h2 {
+        max-width: 420px;
+        margin-bottom: 14px;
+        color: var(--dark);
+        font-family: var(--font-display);
+        font-size: clamp(2.5rem, 4vw, 3.45rem);
+        font-weight: 600;
+        line-height: 0.98;
+      }
+      .welcome-intro {
+        max-width: 390px;
+        margin-bottom: 24px;
+        color: #6b6259;
+        font-size: 0.92rem;
+        line-height: 1.75;
+      }
+      .welcome-offer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 23px;
+        padding: 15px 17px;
+        border: 1px solid #ead9c9;
+        border-radius: 12px;
+        background: #f4ece2;
+      }
+      .welcome-offer[hidden] {
+        display: none;
+      }
+      .welcome-offer-label {
+        display: block;
+        margin-bottom: 2px;
+        color: #746658;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .welcome-offer strong {
+        color: var(--dark);
+        font-size: 1.03rem;
+      }
+      .welcome-code {
+        flex: 0 0 auto;
+        padding: 8px 11px;
+        border: 1px dashed #bc8c6c;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.72);
+        color: #8c3b20;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+      .welcome-shop {
+        display: flex;
+        min-height: 50px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--accent);
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition:
+          background 0.2s ease,
+          transform 0.2s ease;
+      }
+      .welcome-shop:hover {
+        transform: translateY(-1px);
+        background: var(--accent-hover);
+      }
+      .welcome-souvenirs {
+        align-self: center;
+        margin-top: 18px;
+        color: #5d5046;
+        font-size: 0.79rem;
+        text-align: center;
+      }
+      .welcome-souvenirs strong {
+        color: var(--dark);
+        font-weight: 600;
+      }
+      .welcome-souvenirs span {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      body.welcome-open {
+        overflow: hidden;
+      }
+
       /* ─── SHOP PAGE ─── */
       .shop-page {
         max-width: 1400px;
@@ -1876,6 +2077,141 @@
         color: var(--gray);
         margin-bottom: 1.5rem;
         font-size: 0.9rem;
+      }
+      #cart-drawer[hidden] {
+        display: none;
+      }
+      #cart-drawer {
+        position: fixed;
+        inset: 0;
+        z-index: 10006;
+        display: flex;
+        justify-content: flex-end;
+        background: rgba(26, 24, 20, 0.46);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.24s ease;
+      }
+      #cart-drawer.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .cart-drawer-panel {
+        display: flex;
+        width: min(480px, 100%);
+        height: 100%;
+        flex-direction: column;
+        overflow: hidden;
+        background: var(--white);
+        box-shadow: -12px 0 40px rgba(0, 0, 0, 0.15);
+        transform: translateX(30px);
+        transition: transform 0.28s cubic-bezier(0.2, 0.75, 0.25, 1);
+      }
+      #cart-drawer.is-open .cart-drawer-panel {
+        transform: translateX(0);
+      }
+      .cart-drawer-header {
+        display: flex;
+        min-height: 76px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--mid-gray);
+      }
+      .cart-drawer-header h2 {
+        color: var(--dark);
+        font-family: var(--font-display);
+        font-size: 1.65rem;
+        font-weight: 700;
+      }
+      .cart-drawer-close {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border: 1px solid var(--mid-gray);
+        border-radius: 50%;
+        background: var(--white);
+        color: var(--dark);
+        font-size: 1.4rem;
+        line-height: 1;
+      }
+      .cart-drawer-close:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .cart-drawer-items {
+        flex: 1;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 18px 22px;
+      }
+      .cart-drawer-items .cart-item {
+        gap: 12px;
+        padding: 12px;
+      }
+      .cart-drawer-items .cart-item-img {
+        width: 72px;
+        height: 72px;
+      }
+      .cart-drawer-items .cart-item-actions {
+        gap: 8px;
+      }
+      .cart-drawer-items .cart-item-qty button {
+        width: 34px;
+        height: 38px;
+        font-size: 1.15rem;
+      }
+      .cart-drawer-items .cart-remove {
+        padding: 8px 4px;
+      }
+      .cart-drawer-items .cart-empty {
+        padding: 2rem 1rem;
+      }
+      .cart-drawer-items .cart-empty svg {
+        width: 46px;
+        height: 46px;
+        margin-bottom: 1rem;
+      }
+      .cart-drawer-items .cart-empty h2 {
+        font-size: 1.55rem;
+      }
+      .cart-drawer-items .cart-empty p {
+        margin-bottom: 1rem;
+      }
+      .cart-drawer-summary {
+        flex: 0 0 auto;
+        padding: 16px 22px max(18px, env(safe-area-inset-bottom));
+        border-top: 1px solid var(--mid-gray);
+        background: var(--white);
+      }
+      .cart-drawer-summary[hidden] {
+        display: none;
+      }
+      .cart-drawer-summary .order-summary {
+        position: static;
+        padding: 0;
+        border: 0;
+        background: transparent;
+      }
+      .cart-drawer-summary .order-summary h2 {
+        margin-bottom: 10px;
+        font-size: 1.25rem;
+      }
+      .cart-drawer-summary .summary-row {
+        padding: 5px 0;
+      }
+      .cart-drawer-summary .coupon-row {
+        margin: 12px 0;
+      }
+      .cart-drawer-summary .btn-checkout {
+        margin-top: 5px;
+      }
+      .cart-drawer-summary .secure-icons {
+        margin-top: 9px;
+      }
+      body.cart-drawer-open {
+        overflow: hidden;
       }
       .order-summary {
         background: var(--off-white);
@@ -2855,6 +3191,156 @@
           flex: 1;
           text-align: center;
         }
+        .welcome-content {
+          padding: 54px 34px 36px;
+        }
+        .welcome-visual {
+          min-height: 470px;
+        }
+      }
+      @media (max-width: 640px) {
+        #welcome-campaign {
+          padding: 14px;
+        }
+        .welcome-card {
+          display: flex;
+          flex-direction: column;
+          max-height: min(760px, calc(100vh - 28px));
+          overflow-y: auto;
+          border-radius: 17px;
+        }
+        .welcome-visual {
+          flex: 0 0 190px;
+          min-height: 190px;
+        }
+        .welcome-visual::after {
+          inset: 25% 0 0;
+        }
+        .welcome-visual-caption {
+          right: 20px;
+          bottom: 17px;
+          left: 20px;
+          font-size: 1.4rem;
+        }
+        .welcome-content {
+          flex: 1 0 auto;
+          overflow: visible;
+          padding: 25px 23px 27px;
+        }
+        .welcome-close {
+          top: 12px;
+          right: 12px;
+          z-index: 2;
+          width: 36px;
+          height: 36px;
+        }
+        .welcome-eyebrow {
+          margin-bottom: 8px;
+          font-size: 0.63rem;
+        }
+        .welcome-content h2 {
+          max-width: 320px;
+          margin-bottom: 9px;
+          font-size: clamp(2.15rem, 9vw, 2.75rem);
+        }
+        .welcome-intro {
+          margin-bottom: 17px;
+          font-size: 0.84rem;
+          line-height: 1.6;
+        }
+        .welcome-offer {
+          margin-bottom: 16px;
+          padding: 12px;
+        }
+        .welcome-offer strong {
+          font-size: 0.93rem;
+        }
+        .welcome-code {
+          padding: 7px 8px;
+          font-size: 0.75rem;
+        }
+        .welcome-shop {
+          min-height: 47px;
+        }
+        .welcome-souvenirs {
+          margin-top: 13px;
+          font-size: 0.75rem;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #welcome-campaign,
+        .welcome-card,
+        .welcome-close,
+        .welcome-shop,
+        #cart-drawer,
+        .cart-drawer-panel {
+          transition: none;
+        }
+        .welcome-card {
+          transform: none;
+        }
+      }
+      @media (max-width: 640px) {
+        #cart-drawer {
+          align-items: flex-end;
+        }
+        .cart-drawer-panel {
+          width: 100%;
+          height: min(94dvh, 820px);
+          max-height: calc(100% - 10px);
+          border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+          box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.15);
+          transform: translateY(28px);
+        }
+        #cart-drawer.is-open .cart-drawer-panel {
+          transform: translateY(0);
+        }
+        .cart-drawer-header {
+          min-height: 66px;
+          padding: 12px 18px;
+        }
+        .cart-drawer-items {
+          padding: 12px 14px;
+        }
+        .cart-drawer-items .cart-item {
+          display: grid;
+          grid-template-columns: 62px minmax(0, 1fr);
+          align-items: center;
+          gap: 10px;
+          padding: 10px;
+        }
+        .cart-drawer-items .cart-item-img {
+          grid-row: span 2;
+        }
+        .cart-drawer-items .cart-item-info {
+          min-width: 0;
+        }
+        .cart-drawer-items .cart-item-actions {
+          grid-column: 2;
+          justify-content: space-between;
+        }
+        .cart-drawer-items .cart-item-img {
+          width: 62px;
+          height: 62px;
+        }
+        .cart-drawer-items .cart-item-name {
+          font-size: 0.98rem;
+          line-height: 1.25;
+        }
+        .cart-drawer-items .cart-item-price {
+          margin-top: 4px;
+          font-size: 0.92rem;
+        }
+        .cart-drawer-items .cart-item-meta {
+          font-size: 0.72rem;
+        }
+        .cart-drawer-summary {
+          padding: 12px 16px max(12px, env(safe-area-inset-bottom));
+          box-shadow: 0 -5px 18px rgba(0, 0, 0, 0.04);
+        }
+        .cart-drawer-summary .order-summary h2 {
+          display: none;
+        }
       }
       @media (max-width: 480px) {
         .hero h1 {
@@ -3489,6 +3975,63 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
       </div>
     </div>
 
+    <div id="welcome-campaign" hidden>
+      <section
+        class="welcome-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="welcome-title"
+        aria-describedby="welcome-intro"
+        tabindex="-1"
+      >
+        <div class="welcome-visual">
+          <img
+            src="images/Organised Handbag Workshop Studio.png"
+            alt="Inside the Bisbag Creations handbag workshop"
+            loading="lazy"
+            decoding="async"
+          />
+          <p class="welcome-visual-caption">Made with care.<br />Ready for everywhere.</p>
+        </div>
+        <div class="welcome-content">
+          <button
+            class="welcome-close"
+            id="welcome-close"
+            type="button"
+            aria-label="Close welcome offer"
+          >
+            &times;
+          </button>
+          <p class="welcome-eyebrow">A fresh new home for Bisbag</p>
+          <h2 id="welcome-title">Welcome to our new online home.</h2>
+          <p class="welcome-intro" id="welcome-intro">
+            We’re so glad you’re here. Explore bags made for your everyday, and
+            celebrate our new site with a little something from us.
+          </p>
+          <div class="welcome-offer" id="welcome-offer">
+            <div>
+              <span class="welcome-offer-label">A welcome treat</span>
+              <strong id="welcome-discount">10% off your order</strong>
+            </div>
+            <span class="welcome-code" id="welcome-code">WELCOME10</span>
+          </div>
+          <a class="welcome-shop" id="welcome-shop" href="#shop">
+            Explore the collection
+          </a>
+          <a
+            class="welcome-souvenirs"
+            id="welcome-souvenirs"
+            href="https://wa.me/2348023920709"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Planning event souvenirs? <strong>Let’s make it special</strong>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
+    </div>
+
     <!-- ANNOUNCEMENT BAR -->
     <div class="ann-bar" id="ann-bar" role="banner">
       Delivery fees vary by location
@@ -3528,8 +4071,11 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
       <div class="nav-actions">
         <button
           class="cart-btn"
-          onclick="showPage('cart')"
+          onclick="openCartDrawer()"
           aria-label="Shopping cart"
+          aria-haspopup="dialog"
+          aria-controls="cart-drawer"
+          aria-expanded="false"
         >
           <svg
             width="16"
@@ -4165,26 +4711,27 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
       <div class="cart-page">
         <h1>Your Cart</h1>
         <div class="cart-layout">
-          <div id="cart-items-container"></div>
+          <div id="cart-items-container" data-cart-items></div>
           <div class="order-summary" aria-label="Order summary">
             <h2>Order Summary</h2>
             <div class="summary-row">
-              <span>Subtotal</span><span id="cart-subtotal">₦0</span>
+              <span>Subtotal</span><span id="cart-subtotal" data-cart-subtotal>₦0</span>
             </div>
             <div class="summary-row">
-              <span>Delivery</span><span id="cart-delivery">₦2,500</span>
+              <span>Delivery</span><span id="cart-delivery" data-cart-delivery>₦2,500</span>
             </div>
             <div class="summary-row">
-              <span>Discount</span><span id="cart-discount">—</span>
+              <span>Discount</span><span id="cart-discount" data-cart-discount>—</span>
             </div>
             <div class="summary-row total">
-              <span>Total</span><span id="cart-total">₦0</span>
+              <span>Total</span><span id="cart-total" data-cart-total>₦0</span>
             </div>
             <div class="coupon-row">
               <input
                 type="text"
                 placeholder="Coupon code"
                 id="coupon-input"
+                data-cart-coupon
                 aria-label="Coupon code"
               />
               <button onclick="applyCoupon()">Apply</button>
@@ -4202,6 +4749,65 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           </div>
         </div>
       </div>
+    </div>
+
+    <div id="cart-drawer" hidden>
+      <section
+        class="cart-drawer-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cart-drawer-title"
+        tabindex="-1"
+      >
+        <header class="cart-drawer-header">
+          <h2 id="cart-drawer-title">Your Cart <span id="cart-drawer-count"></span></h2>
+          <button
+            class="cart-drawer-close"
+            id="cart-drawer-close"
+            type="button"
+            aria-label="Close cart"
+          >
+            &times;
+          </button>
+        </header>
+        <div class="cart-drawer-items" data-cart-items></div>
+        <div class="cart-drawer-summary">
+          <div class="order-summary" aria-label="Order summary">
+            <h2>Order Summary</h2>
+            <div class="summary-row">
+              <span>Subtotal</span><span data-cart-subtotal>₦0</span>
+            </div>
+            <div class="summary-row">
+              <span>Delivery</span><span data-cart-delivery>₦0</span>
+            </div>
+            <div class="summary-row">
+              <span>Discount</span><span data-cart-discount>—</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total</span><span data-cart-total>₦0</span>
+            </div>
+            <div class="coupon-row">
+              <input
+                type="text"
+                placeholder="Coupon code"
+                data-cart-coupon
+                aria-label="Coupon code"
+              />
+              <button onclick="applyCoupon(this.previousElementSibling)">Apply</button>
+            </div>
+            <button class="btn-checkout" onclick="showPage('checkout')">
+              Proceed to Checkout →
+            </button>
+            <div class="secure-icons">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+              No online payment. You confirm on WhatsApp.
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- ═══════════ CHECKOUT ═══════════ -->
@@ -5524,6 +6130,9 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         firstRender = true,
         booted = false,
         catalogError = false;
+      let welcomeReturnFocus = null,
+        welcomeSeenThisTab = false;
+      let cartDrawerReturnFocus = null;
 
       /* ═══════════ LOADING FEEDBACK ═══════════ */
       const Progress = {
@@ -5667,6 +6276,153 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         }
       }
 
+      function initWelcomeCampaign() {
+        const seenAt = Number(store.get("bb_welcome_campaign_seen", 0));
+        if (
+          currentPage !== "home" ||
+          (seenAt && Date.now() - seenAt < 30 * 24 * 60 * 60 * 1000)
+        )
+          return;
+
+        const showWhenReady = () => {
+          if (currentPage !== "home" || welcomeSeenThisTab) return;
+          if (document.body.classList.contains("has-cookie")) {
+            setTimeout(showWhenReady, 800);
+            return;
+          }
+          const overlay = $("welcome-campaign");
+          if (!overlay) return;
+          welcomeSeenThisTab = true;
+          store.set("bb_welcome_campaign_seen", Date.now());
+          welcomeReturnFocus = document.activeElement;
+          overlay.hidden = false;
+          requestAnimationFrame(() => {
+            overlay.classList.add("is-open");
+            $("welcome-close").focus();
+          });
+          document.body.classList.add("welcome-open");
+          trackEvent("welcome_campaign", "Marketing", "Opened");
+        };
+
+        setTimeout(showWhenReady, 4500);
+      }
+      function closeWelcomeCampaign() {
+        const overlay = $("welcome-campaign");
+        if (!overlay || overlay.hidden) return;
+        overlay.classList.remove("is-open");
+        document.body.classList.remove("welcome-open");
+        setTimeout(() => {
+          overlay.hidden = true;
+          if (welcomeReturnFocus && typeof welcomeReturnFocus.focus === "function")
+            welcomeReturnFocus.focus();
+          welcomeReturnFocus = null;
+        }, 300);
+      }
+      function updateWelcomeCampaign() {
+        const code = String(settings.couponCode || "").trim();
+        const percent = Number(settings.couponPercent) || 0;
+        $("welcome-offer").hidden = !code || percent <= 0;
+        $("welcome-discount").textContent = percent + "% off your order";
+        $("welcome-code").textContent = code;
+        $("welcome-souvenirs").href =
+          "https://wa.me/" +
+          waNumber() +
+          "?text=" +
+          encodeURIComponent(
+            "Hi Bisbag Creations, I’d love to enquire about souvenirs for my event.",
+          );
+      }
+
+      $("welcome-close").addEventListener("click", closeWelcomeCampaign);
+      $("welcome-campaign").addEventListener("click", (event) => {
+        if (event.target === $("welcome-campaign")) closeWelcomeCampaign();
+      });
+      $("welcome-shop").addEventListener("click", closeWelcomeCampaign);
+      $("welcome-souvenirs").addEventListener("click", closeWelcomeCampaign);
+      document.addEventListener("keydown", (event) => {
+        const overlay = $("welcome-campaign");
+        if (!overlay || overlay.hidden) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeWelcomeCampaign();
+          return;
+        }
+        if (event.key !== "Tab") return;
+        const focusable = Array.from(
+          overlay.querySelectorAll('a[href], button:not(:disabled), [tabindex="0"]'),
+        ).filter((el) => el.offsetParent !== null);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+
+      function openCartDrawer() {
+        const drawer = $("cart-drawer");
+        if (!drawer) return;
+        if (drawer.hidden) {
+          renderCart();
+          cartDrawerReturnFocus = document.activeElement;
+          drawer.hidden = false;
+        }
+        document.querySelector(".cart-btn").setAttribute("aria-expanded", "true");
+        document.body.classList.add("cart-drawer-open");
+        void drawer.offsetWidth;
+        drawer.classList.add("is-open");
+        $("cart-drawer-close").focus();
+      }
+      function closeCartDrawer(restoreFocus) {
+        const drawer = $("cart-drawer");
+        if (!drawer || drawer.hidden) return;
+        drawer.classList.remove("is-open");
+        document.querySelector(".cart-btn").setAttribute("aria-expanded", "false");
+        document.body.classList.remove("cart-drawer-open");
+        setTimeout(() => {
+          if (drawer.classList.contains("is-open")) return;
+          drawer.hidden = true;
+          if (
+            restoreFocus !== false &&
+            cartDrawerReturnFocus &&
+            typeof cartDrawerReturnFocus.focus === "function"
+          )
+            cartDrawerReturnFocus.focus();
+          cartDrawerReturnFocus = null;
+        }, 280);
+      }
+      $("cart-drawer-close").addEventListener("click", () => closeCartDrawer());
+      $("cart-drawer").addEventListener("click", (event) => {
+        if (event.target === $("cart-drawer")) closeCartDrawer();
+      });
+      document.addEventListener("keydown", (event) => {
+        const drawer = $("cart-drawer");
+        if (!drawer || drawer.hidden) return;
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeCartDrawer();
+          return;
+        }
+        if (event.key !== "Tab") return;
+        const focusable = Array.from(
+          drawer.querySelectorAll('a[href], button:not(:disabled), input:not(:disabled)'),
+        ).filter((el) => el.offsetParent !== null);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+
       /* ═══════════ MOBILE MENU ═══════════ */
       function toggleMobileMenu() {
         const m = $("mobile-menu"),
@@ -5687,6 +6443,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         else location.hash = name;
       }
       function renderPage(raw) {
+        closeCartDrawer(false);
         let name = raw || "home",
           title = null;
         if (/^product-\d+$/.test(name)) {
@@ -5734,6 +6491,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
       /* ═══════════ SETTINGS (live from admin) ═══════════ */
       function applySettings() {
         const s = settings;
+        updateWelcomeCampaign();
         const txt =
           (s.announcement || "").trim() ||
           "Delivery fees vary by location" +
@@ -5780,7 +6538,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           } else a.style.display = "none";
         });
         if (cart.length) {
-          if (currentPage === "cart") renderCart();
+          if (currentPage === "cart" || !$("cart-drawer").hidden) renderCart();
           if (currentPage === "checkout") renderCheckout();
         }
       }
@@ -5845,7 +6603,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         fillCounts();
         renderHomeFeatured();
         renderShopGrid();
-        if (currentPage === "cart") renderCart();
+        if (currentPage === "cart" || !$("cart-drawer").hidden) renderCart();
         if (currentPage === "checkout") renderCheckout();
         if (currentPage === "detail" && detailProduct) {
           if (!loadDetail(detailProduct.id, true)) showPage("shop");
@@ -5928,6 +6686,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         renderShopGrid();
         renderPage(location.hash.slice(1));
         firstRender = false;
+        initWelcomeCampaign();
         const bl = $("boot-loader");
         if (bl) {
           bl.classList.add("hide");
@@ -6307,6 +7066,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           ? store.get("bb_cart", []).reduce((s, i) => s + i.qty, 0)
           : cart.reduce((s, i) => s + i.qty, 0);
         $("cart-count").textContent = t;
+        $("cart-drawer-count").textContent = t ? "(" + t + ")" : "";
         if (!catalogError)
           store.set(
             "bb_cart",
@@ -6337,17 +7097,32 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         return { sub, delivery, disc, total: sub + (delivery || 0) - disc };
       }
       function renderCart() {
-        const c = $("cart-items-container");
+        const containers = document.querySelectorAll("[data-cart-items]");
+        const drawerSummary = document.querySelector(".cart-drawer-summary");
+        const totalTargets = {
+          subtotal: document.querySelectorAll("[data-cart-subtotal]"),
+          delivery: document.querySelectorAll("[data-cart-delivery]"),
+          discount: document.querySelectorAll("[data-cart-discount]"),
+          total: document.querySelectorAll("[data-cart-total]"),
+        };
+        const setText = (targets, value) =>
+          targets.forEach((el) => {
+            el.textContent = value;
+          });
         if (!cart.length) {
-          c.innerHTML = `<div class="cart-empty"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><h2>Your cart is empty</h2><p>Add some bags to get started!</p><button class="btn-primary" onclick="showPage('shop')">Browse the Collection</button></div>`;
-          $("cart-subtotal").textContent = "₦0";
-          $("cart-delivery").textContent = "₦0";
-          $("cart-discount").textContent = "—";
-          $("cart-total").textContent = "₦0";
+          drawerSummary.hidden = true;
+          const empty = `<div class="cart-empty"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><h2>Your cart is empty</h2><p>Add some bags to get started!</p><button class="btn-primary" onclick="showPage('shop')">Browse the Collection</button></div>`;
+          containers.forEach((container) => (container.innerHTML = empty));
+          setText(totalTargets.subtotal, "₦0");
+          setText(totalTargets.delivery, "₦0");
+          setText(totalTargets.discount, "—");
+          setText(totalTargets.total, "₦0");
+          $("cart-drawer-count").textContent = "";
           return;
         }
+        drawerSummary.hidden = false;
         const { sub, delivery, disc, total } = calcTotals();
-        c.innerHTML = `<div class="cart-items">${cart
+        const items = `<div class="cart-items">${cart
           .map(
             (item) => `<div class="cart-item" data-cart-id="${item.id}">
     <div class="cart-item-img">${mediaHtml(item, "thumb", 90)}</div>
@@ -6367,12 +7142,15 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
   </div>`,
           )
           .join("")}</div>`;
-        BBData.hydrateImages(c);
-        $("cart-subtotal").textContent = fmt(sub);
-        $("cart-delivery").textContent =
-          delivery === null ? "At checkout" : fmt(delivery);
-        $("cart-discount").textContent = disc ? "-" + fmt(disc) : "—";
-        $("cart-total").textContent = delivery === null ? "At checkout" : fmt(total);
+        containers.forEach((container) => {
+          container.innerHTML = items;
+          BBData.hydrateImages(container);
+        });
+        setText(totalTargets.subtotal, fmt(sub));
+        setText(totalTargets.delivery, delivery === null ? "At checkout" : fmt(delivery));
+        setText(totalTargets.discount, disc ? "-" + fmt(disc) : "—");
+        setText(totalTargets.total, delivery === null ? "At checkout" : fmt(total));
+        $("cart-drawer-count").textContent = "(" + cart.reduce((sum, item) => sum + item.qty, 0) + ")";
       }
       function updateCartQty(id, d) {
         const it = cart.find((x) => x.id === id);
@@ -6389,7 +7167,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         renderCart();
       }
       function removeFromCart(id) {
-        const el = document.querySelector(
+        const items = document.querySelectorAll(
           '.cart-item[data-cart-id="' + id + '"]',
         );
         const doIt = () => {
@@ -6397,13 +7175,14 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           updateCartCount();
           renderCart();
         };
-        if (el) {
-          el.classList.add("removing");
+        if (items.length) {
+          items.forEach((el) => el.classList.add("removing"));
           setTimeout(doIt, 230);
         } else doIt();
       }
-      function applyCoupon() {
-        const v = $("coupon-input").value.trim().toUpperCase();
+      function applyCoupon(input) {
+        const field = input || $("coupon-input");
+        const v = field.value.trim().toUpperCase();
         if (
           settings.couponCode &&
           v === String(settings.couponCode).toUpperCase()
