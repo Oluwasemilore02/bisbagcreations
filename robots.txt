@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.bisbagcreations.com/sitemap.xml
+Sitemap: https://bisbagcreations.vercel.app/sitemap.xml
