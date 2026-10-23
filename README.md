@@ -3,7 +3,7 @@
 Customers browse the store → place an order → it is **saved in Firebase** and they send it to you on WhatsApp.
 You manage everything in `admin.html`. Store and admin are connected live: change a price or stock in the admin and the
 open store updates instantly; a customer places an order and a "New order" alert pops up in your admin.
-There is no online payment. You confirm price, delivery and payment on WhatsApp.
+There is no online or pay-on-delivery payment. Bank transfer is the only accepted payment method, arranged through WhatsApp after the order is placed.
 
 ## What's in the folder
 
@@ -39,6 +39,21 @@ First sign-in → **Products** → _Import 24 sample products_ (or _Start empty_
 2. Vercel → _Add New → Project_ → import the repo → Framework Preset **Other**, leave build settings empty → Deploy. (No environment variables needed; the Firebase keys are public by design. Security comes from `firestore.rules`.)
 3. Add your domain in Vercel → Settings → Domains, and add it to Firebase _Authorized domains_ (step 6).
 
+### Newsletter broadcasts (Brevo)
+
+1. Create a Brevo account, verify the sender email/domain, and create a dedicated contact list for website newsletter signups. Keep the list ID from the list settings.
+2. Create a Brevo API key. Do not put it in this repository or in `firebase-config.js`.
+3. In Vercel → Project → Settings → Environment Variables, add:
+   - `BREVO_API_KEY` — the Brevo API key.
+   - `BREVO_LIST_ID` — the numeric ID of the dedicated newsletter list.
+   - `BREVO_SENDER_EMAIL` — the verified sender email address.
+   - `BREVO_SENDER_NAME` — the sender name shown to subscribers.
+   - `FIREBASE_API_KEY` — the Firebase Web API key from `firebase-config.js`.
+   - `FIREBASE_ADMIN_UID` — the admin UID authorized in `firestore.rules`.
+4. Redeploy the Vercel project. Then open Admin → Newsletter, refresh the subscriber count, compose a message, and confirm the immediate send.
+
+The broadcast endpoint verifies the Firebase admin session before contacting Brevo. It imports website signups with existing-contact updates disabled, so an address already in Brevo is not automatically re-subscribed or changed. Campaigns include an unsubscribe link, and Brevo suppresses unsubscribed contacts. Review Brevo's import report if an existing address needs to be reconciled with the dedicated list.
+
 ## Before announcing — replace these
 
 - `www.bisbagcreations.com` → your real domain in `index.html` (canonical + og tags), `sitemap.xml`, `robots.txt`.
@@ -50,6 +65,7 @@ First sign-in → **Products** → _Import 24 sample products_ (or _Start empty_
 
 - **Orders:** saved to Firestore (`orders`), then the customer taps _Send order on WhatsApp_. If Firebase is unreachable, the order still goes out through the WhatsApp message with the same order ID.
 - **Receipts:** Admin → Orders → Receipt printer → enter the order ID. The printable receipt includes customer, item, total, order status, and payment state whether payment is pending or received.
+- **Newsletter broadcasts:** Admin → Newsletter syncs website signups to a dedicated Brevo list, creates a campaign, and sends it immediately. Brevo API credentials stay in Vercel environment variables; the website only stores subscribers and never handles the sending key.
 - **Stock:** taken off when you set an order to _Processing_ (or later); returned if you cancel or delete it.
 - **Photos:** resized in the browser and stored in Firestore (`productImages`), so you stay on the free Spark plan. (Firebase Storage now needs the paid Blaze plan.)
 - **Price check:** pending orders whose prices don't match your catalogue show **⚠ check prices** in the admin.

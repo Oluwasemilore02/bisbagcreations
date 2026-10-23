@@ -346,6 +346,7 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
         <button class="nav-item" data-panel="products" onclick="showPanel('products')"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Products</button>
         <button class="nav-item" data-panel="inventory" onclick="showPanel('inventory')"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Inventory<span class="nav-badge" style="background:var(--amber)" id="nav-inv-badge">0</span></button>
         <button class="nav-item" data-panel="customers" onclick="showPanel('customers')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Customers</button>
+        <button class="nav-item" data-panel="newsletter" onclick="showPanel('newsletter')"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/></svg>Newsletter</button>
         <button class="nav-item" data-panel="analytics" onclick="showPanel('analytics')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</button>
       </div>
       <div class="sidebar-section">
@@ -406,7 +407,7 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
         <div class="filter-bar">
           <div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" placeholder="Search orders or customers..." oninput="filterOrders(this.value)"/></div>
           <select class="filter-select" onchange="filterOrdersByStatus(this.value)"><option value="">All statuses</option><option value="new">New message</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select>
-          <select class="filter-select" onchange="filterOrdersByMethod(this.value)"><option value="">All payment / sources</option><option value="contact_form">Contact form</option><option value="WhatsApp">WhatsApp (unpaid/unknown)</option><option value="Bank Transfer">Bank Transfer</option><option value="Pay on Delivery">Pay on Delivery</option><option value="Other">Other</option></select>
+          <select class="filter-select" onchange="filterOrdersByMethod(this.value)"><option value="">All payment / sources</option><option value="contact_form">Contact form</option><option value="WhatsApp">WhatsApp (unpaid/unknown)</option><option value="Bank Transfer">Bank Transfer</option><option value="Pay on Delivery">Pay on Delivery (legacy)</option><option value="Other">Other</option></select>
         </div>
         <div class="card"><div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th></th></tr></thead><tbody id="orders-table-body"></tbody></table></div></div>
       </div>
@@ -448,6 +449,53 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
         </div>
         <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" placeholder="Search customers..." oninput="filterCustomers(this.value)"/></div></div>
         <div class="card"><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Email</th><th>Phone</th><th>City</th><th>Orders</th><th>Total spent</th><th>Last order</th><th></th></tr></thead><tbody id="customers-table-body"></tbody></table></div></div>
+      </div>
+
+      <!-- NEWSLETTER -->
+      <div class="panel" id="panel-newsletter">
+        <div class="page-header">
+          <div><div class="page-title">Newsletter</div><div class="page-subtitle">Write an update and broadcast it to opted-in subscribers</div></div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" type="button" onclick="refreshNewsletter()">Refresh subscribers</button>
+            <button class="btn btn-secondary" type="button" onclick="exportCSV('subscribers')">Export subscriber CSV</button>
+          </div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+          <div class="stat-card"><div class="stat-val" id="newsletter-subscriber-count">—</div><div class="stat-label">Newsletter subscribers</div></div>
+        </div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-header"><span class="card-title">Broadcast status</span></div>
+          <div class="card-body">
+            <div id="newsletter-status" role="status" aria-live="polite" style="font-size:0.84rem;line-height:1.7;color:var(--text2)">Checking newsletter setup…</div>
+            <p style="font-size:0.75rem;line-height:1.6;color:var(--text3);margin-top:0.65rem">Only addresses submitted through the website signup are included. Brevo handles unsubscribe preferences; contacts already in Brevo are not re-imported, so an existing opt-out is not overridden. Use a dedicated Brevo list for website newsletter subscribers.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Compose a campaign</span></div>
+          <div class="card-body">
+            <div class="form-row full">
+              <div class="form-group">
+                <label class="form-label" for="newsletter-subject">Email subject *</label>
+                <input class="form-input" id="newsletter-subject" maxlength="150" placeholder="A new collection from Bisbag"/>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label class="form-label" for="newsletter-preview">Inbox preview (optional)</label>
+                <input class="form-input" id="newsletter-preview" maxlength="180" placeholder="A short line shown beside the subject"/>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label class="form-label" for="newsletter-message">Message *</label>
+                <textarea class="form-input" id="newsletter-message" rows="10" maxlength="30000" placeholder="Write your newsletter message here…" style="min-height:180px;resize:vertical"></textarea>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:0.75rem">
+              <button class="btn btn-primary" id="newsletter-send-btn" type="button" onclick="broadcastNewsletter()">Review and send to subscribers</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ANALYTICS -->
@@ -540,7 +588,7 @@ tr.row-flash td{animation:flashRow 4.5s ease-out}
     <div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="ao-email" type="email"/></div><div class="form-group"><label class="form-label">State</label><input class="form-input" id="ao-state" placeholder="e.g. Lagos"/></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">City / area</label><input class="form-input" id="ao-city" placeholder="e.g. Egbeda"/></div></div>
     <div class="form-row full"><div class="form-group"><label class="form-label">Delivery address</label><input class="form-input" id="ao-address"/></div></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Payment</label><select class="form-select" id="ao-payment"><option>WhatsApp</option><option>Bank Transfer</option><option>Pay on Delivery</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="ao-status"><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Payment</label><select class="form-select" id="ao-payment"><option>WhatsApp</option><option>Bank Transfer</option><option>Other</option></select></div><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="ao-status"><option value="pending">Pending</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option></select></div></div>
     <div class="form-label" style="margin-bottom:6px">Items *</div>
     <div id="ao-items"></div>
     <button class="btn btn-secondary btn-sm" type="button" onclick="addOrderRow()">+ Add item</button>
@@ -566,7 +614,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 const LOW=5;
 const catLabels={handbag:'Handbag',backpack:'Backpack',tote:'Tote',clutch:'Clutch',travel:'Travel',wallet:'Wallet',other:'Other'};
 const catColors={handbag:'var(--blue)',backpack:'var(--purple)',tote:'var(--amber)',clutch:'var(--accent)',travel:'var(--green)',wallet:'var(--text2)',other:'var(--text3)'};
-let products=[],orders=[],settings=Object.assign({},BBData.defaults);
+let products=[],orders=[],settings=Object.assign({},BBData.defaults),newsletterEmails=[];
 let productsLoaded=false,ordersLoaded=false,catalogMissing=false,currentPanel='dashboard',user=null,unsubs=[],rq=false;
 let oSearch='',oStatus='',oMethod='',pSearch='',pCat='',cSearch='',flashIds={},unseen=0,soundOn=true;
 try{soundOn=localStorage.getItem('bb_admin_sound')!=='off';}catch(e){}
@@ -588,7 +636,7 @@ function validOrders(){return purchaseOrders().filter(o=>o.status!=='cancelled')
 function soldOf(id){return validOrders().reduce((s,o)=>s+o.items.filter(i=>i.id===id).reduce((a,i)=>a+i.qty,0),0);}
 function catOf(item){const p=products.find(x=>x.id===item.id);return p?p.cat:'other';}
 function statusPill(s){const m={new:'blue',pending:'amber',processing:'blue',shipped:'purple',delivered:'green',cancelled:'red'};return '<span class="pill pill-'+(m[s]||'gray')+'">'+esc(s)+'</span>';}
-function paymentPill(o){const m={'Bank Transfer':'blue','Pay on Delivery':'amber','WhatsApp':'gray','Other':'gray'};return '<span class="pill pill-'+(m[o.payment]||'gray')+'">'+esc(o.payment)+(o.paid?' ✓ paid':'')+'</span>';}
+function paymentPill(o){const m={'Bank Transfer':'blue','Pay on Delivery':'amber','WhatsApp':'gray','Other':'gray'};const label=o.payment==='Pay on Delivery'?'Pay on Delivery (legacy)':o.payment;return '<span class="pill pill-'+(m[o.payment]||'gray')+'">'+esc(label)+(o.paid?' ✓ paid':'')+'</span>';}
 function bar(label,right,pct,color){return '<div style="margin-bottom:0.9rem"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:0.8rem;font-weight:600;color:var(--text)">'+label+'</span><span style="font-size:0.78rem;color:var(--text2)">'+right+'</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+color+'"></div></div></div>';}
 function setBtnLoading(btn,on,label){
   if(!btn)return;
@@ -600,6 +648,86 @@ async function guard(fn){
   catch(e){
     if(BBData.isPermissionError(e))toast('Permission denied. Your account is not listed as admin in firestore.rules.','error');
     else toast((e&&e.message)||'Something went wrong','error');
+  }
+}
+async function newsletterRequest(payload){
+  const token=await BBData.getIdToken();
+  const response=await fetch('/api/newsletter',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify(payload)
+  });
+  let data;
+  try{data=await response.json();}
+  catch(e){throw new Error('Newsletter service did not return a valid response. Deploy the site on Vercel and check the API setup.');}
+  if(!response.ok){
+    const error=new Error(data.error||'Newsletter request failed.');
+    error.missing=data.missing||[];
+    throw error;
+  }
+  return data;
+}
+function setNewsletterStatus(message,isError){
+  const el=$('newsletter-status');
+  el.textContent=message;
+  el.style.color=isError?'var(--red)':'var(--text2)';
+}
+async function refreshNewsletter(){
+  const count=$('newsletter-subscriber-count');
+  setNewsletterStatus('Loading the website subscriber list…');
+  try{
+    newsletterEmails=await BBData.listSubscribers();
+    count.textContent=String(newsletterEmails.length);
+  }catch(e){
+    count.textContent='—';
+    setNewsletterStatus((e&&e.message)||'Could not load subscribers.',true);
+    return;
+  }
+  try{
+    await newsletterRequest({action:'status'});
+    setNewsletterStatus('Ready. '+newsletterEmails.length+' opted-in subscriber'+(newsletterEmails.length===1?'':'s')+' will receive the next campaign. Each message includes an unsubscribe link managed by Brevo.');
+  }catch(e){
+    const missing=e.missing&&e.missing.length
+      ?' Configure these Vercel environment variables: '+e.missing.join(', ')+'.'
+      :' '+((e&&e.message)||'Could not reach the newsletter service.');
+    setNewsletterStatus('Broadcasting is not ready yet.'+missing,true);
+  }
+}
+async function broadcastNewsletter(){
+  const subject=$('newsletter-subject').value.trim();
+  const previewText=$('newsletter-preview').value.trim();
+  const message=$('newsletter-message').value.trim();
+  if(!subject||!message){toast('Enter an email subject and message first.','error');return;}
+  if(!newsletterEmails.length){
+    await refreshNewsletter();
+    if(!newsletterEmails.length){toast('There are no newsletter subscribers to send to.','error');return;}
+  }
+  if(!confirm('Send this campaign to '+newsletterEmails.length+' newsletter subscriber'+(newsletterEmails.length===1?'':'s')+'? This sends immediately and cannot be undone.'))return;
+  const btn=$('newsletter-send-btn');
+  setBtnLoading(btn,true,'Preparing campaign…');
+  try{
+    const imported=await newsletterRequest({action:'sync',emails:newsletterEmails});
+    setNewsletterStatus('Syncing '+imported.count+' opted-in subscribers with Brevo…');
+    let status='queued';
+    for(let attempt=0;attempt<120;attempt++){
+      await new Promise(resolve=>setTimeout(resolve,2500));
+      const process=await newsletterRequest({action:'process',processId:imported.processId});
+      status=process.status;
+      if(status==='completed')break;
+      if(status==='failed'||status==='cancelled')throw new Error(process.detail||'Brevo could not import the subscriber list.');
+      setNewsletterStatus('Brevo is syncing subscribers ('+status.replace(/_/g,' ')+')…');
+    }
+    if(status!=='completed')throw new Error('Subscriber sync is taking longer than expected. No campaign was sent; please refresh and try again later.');
+    setNewsletterStatus('Subscriber sync complete. Creating and sending your campaign…');
+    const result=await newsletterRequest({action:'broadcast',subject:subject,previewText:previewText,message:message});
+    setNewsletterStatus('Campaign '+result.campaignId+' was sent to the Brevo newsletter list. Brevo will suppress contacts who have unsubscribed.');
+    $('newsletter-message').value='';
+    toast('Newsletter campaign sent.');
+  }catch(e){
+    setNewsletterStatus((e&&e.message)||'Campaign could not be sent.',true);
+    toast((e&&e.message)||'Campaign could not be sent.','error');
+  }finally{
+    setBtnLoading(btn,false);
   }
 }
 function setStat(id,val,format){
@@ -736,6 +864,7 @@ function showPanel(name){
   $('panel-'+name).classList.add('active');
   const nb=document.querySelector('.nav-item[data-panel="'+name+'"]');if(nb)nb.classList.add('active');
   if(name==='settings')fillSettingsForm();
+  if(name==='newsletter')refreshNewsletter();
   renderAll();
 }
 function updateNavBadges(){
@@ -879,12 +1008,13 @@ function viewOrder(id){
   }
   $('order-modal-title').textContent='Order '+o.id;
   const lbl='font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px';
-  const pays=['WhatsApp','Bank Transfer','Pay on Delivery','Other'];
+  const pays=['WhatsApp','Bank Transfer','Other'];
+  if(o.payment==='Pay on Delivery')pays.push('Pay on Delivery (legacy order)');
   $('order-modal-body').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem"><div><div style="'+lbl+'">Customer</div><div style="font-size:0.9rem;font-weight:600;color:var(--text)">'+esc(o.customer)+'</div><div style="font-size:0.8rem;color:var(--text2);margin-top:2px">'+esc(o.email||'')+'</div><div style="font-size:0.8rem;color:var(--text2)">'+esc(o.phone||'')+'</div><div style="font-size:0.8rem;color:var(--text2);margin-top:4px">'+esc([o.address,o.city,o.state].filter(Boolean).join(', '))+'</div></div><div><div style="'+lbl+'">Order info</div><div style="font-size:0.82rem;color:var(--text2)">Date: <strong style="color:var(--text)">'+dstr(o)+'</strong></div><div style="font-size:0.82rem;color:var(--text2);margin-top:4px">Payment: '+paymentPill(o)+'</div><div style="font-size:0.82rem;color:var(--text2);margin-top:4px">Status: '+statusPill(o.status)+' '+priceCheck(o)+'</div>'+(o.notes?'<div style="font-size:0.78rem;color:var(--amber);margin-top:6px;padding:6px 8px;background:var(--amber-dim);border-radius:var(--radius)">'+esc(o.notes)+'</div>':'')+'</div></div>'
    +'<div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.25rem">'+o.items.map(it=>'<div style="display:flex;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border)"><div style="font-size:0.85rem;font-weight:500;color:var(--text)">'+esc(it.name)+'</div><div style="font-size:0.82rem;color:var(--text2)">×'+esc(it.qty)+' · '+fmtN(it.price*it.qty)+'</div></div>').join('')
    +'<div style="padding:10px 12px;display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text2)"><span>Subtotal</span><span>'+fmtN(o.subtotal)+'</span></div><div style="padding:4px 12px;display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text2)"><span>Delivery</span><span>'+(o.delivery?fmtN(o.delivery):'Free')+'</span></div>'+(o.discount?'<div style="padding:4px 12px;display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text2)"><span>Discount</span><span>-'+fmtN(o.discount)+'</span></div>':'')+'<div style="padding:10px 12px;display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;color:var(--text);border-top:1px solid var(--border)"><span>Total</span><span>'+fmtN(o.total)+'</span></div></div>'
    +'<div class="form-row"><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="order-status-select">'+['pending','processing','shipped','delivered','cancelled'].map(s=>'<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s.charAt(0).toUpperCase()+s.slice(1)+'</option>').join('')+'</select></div>'
-   +'<div class="form-group"><label class="form-label">Payment method</label><select class="form-select" id="order-payment-select">'+pays.map(s=>'<option'+(s===o.payment?' selected':'')+'>'+s+'</option>').join('')+'</select></div></div>'
+   +'<div class="form-group"><label class="form-label">Payment method</label><select class="form-select" id="order-payment-select">'+pays.map(s=>'<option'+((s===o.payment||s==='Pay on Delivery (legacy order)')?' selected':'')+' value="'+(s==='Pay on Delivery (legacy order)'?'Pay on Delivery':s)+'">'+s+'</option>').join('')+'</select></div></div>'
    +'<label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text2);margin-top:0.4rem"><input type="checkbox" id="order-paid"'+(o.paid?' checked':'')+'/> Payment received</label>'
    +'<div style="font-size:0.74rem;color:var(--text3);margin-top:0.8rem">Stock is taken off when an order reaches Processing, and returned if it is cancelled or deleted.</div>';
   const wa=waPhone(o.phone);

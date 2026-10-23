@@ -90,6 +90,7 @@
         return v ? Promise.resolve(v) : Promise.reject(new Error('missing'));
       },
       onAuth: function (cb) { var f = function () { cb(get('auth', null)); }; setTimeout(f, 0); return watch('auth', f); },
+      getIdToken: function () { return Promise.reject(new Error('Newsletter broadcasts require a connected Firebase admin account.')); },
       signIn: function (email, pw) {
         if (!email || !pw) return Promise.reject({ code: 'auth/invalid-credential' });
         var u = { uid: 'demo-admin', email: email }; set('auth', u); return Promise.resolve(u);
@@ -211,6 +212,10 @@
       },
       /* admin */
       onAuth: function (cb) { return needAuth().onAuthStateChanged(function (u) { cb(u ? { uid: u.uid, email: u.email } : null); }); },
+      getIdToken: function () {
+        var current = needAuth().currentUser;
+        return current ? current.getIdToken() : Promise.reject(new Error('Sign in again before broadcasting.'));
+      },
       signIn: function (email, pw) { return needAuth().signInWithEmailAndPassword(email, pw).then(function (r) { return { uid: r.user.uid, email: r.user.email }; }); },
       signOut: function () { return needAuth().signOut(); },
       onOrders: function (cb, err) {

@@ -245,9 +245,36 @@
         font-size: 0.8rem;
         letter-spacing: 0.06em;
         font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+      .ann-bar[hidden] {
+        display: none;
       }
       .ann-bar span {
         color: var(--gold);
+      }
+      .ann-bar #ann-message,
+      .ann-bar .ann-close span {
+        color: inherit;
+      }
+      .ann-close {
+        display: grid;
+        place-items: center;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: inherit;
+        font-size: 1.25rem;
+        line-height: 1;
+      }
+      .ann-close:hover {
+        background: rgba(255, 255, 255, 0.12);
       }
 
       /* ─── NAVBAR ─── */
@@ -3918,6 +3945,46 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(26, 24, 20, 0.18);
       }
+      @media (max-width: 640px) {
+        html {
+          scroll-behavior: auto;
+        }
+        .ann-bar {
+          padding: 7px 0.55rem 7px 0.85rem;
+          gap: 0.35rem;
+          font-size: 0.73rem;
+          letter-spacing: 0.03em;
+        }
+        .detail-page {
+          padding: 1.25rem 1rem;
+        }
+        .detail-breadcrumb {
+          margin-bottom: 1rem;
+          flex-wrap: wrap;
+        }
+        .detail-grid {
+          gap: 1.5rem;
+        }
+        .detail-img {
+          height: auto;
+          max-height: min(72svh, 480px);
+          aspect-ratio: 1 / 1;
+        }
+        .detail-img .p-img-frame,
+        .detail-img .p-img {
+          height: 100% !important;
+        }
+        .detail-img .p-img {
+          object-fit: contain;
+        }
+        .detail-img:hover img {
+          transform: none;
+        }
+        .detail-name {
+          font-size: clamp(1.9rem, 8vw, 2.4rem);
+          overflow-wrap: anywhere;
+        }
+      }
 
       /* ── Full-width photo hero ── */
 @keyframes heroZoom{from{transform:scale(1.07)}to{transform:scale(1)}}
@@ -4033,8 +4100,16 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
     </div>
 
     <!-- ANNOUNCEMENT BAR -->
-    <div class="ann-bar" id="ann-bar" role="banner">
-      Delivery fees vary by location
+    <div class="ann-bar" id="ann-bar" role="region" aria-label="Store announcement">
+      <span id="ann-message">Delivery fees vary by location</span>
+      <button
+        class="ann-close"
+        type="button"
+        aria-label="Dismiss announcement"
+        onclick="closeAnnouncementBar()"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
     </div>
 
     <!-- NAV -->
@@ -4318,6 +4393,15 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             </p>
           </div>
           <div class="products-grid" id="home-featured-grid"></div>
+          <div class="shop-more-wrap">
+            <button
+              class="shop-more-btn"
+              type="button"
+              onclick="trackEvent('click', 'CTA', 'Featured Products - View More'); showPage('shop')"
+            >
+              View more products
+            </button>
+          </div>
         </div>
       </section>
 
@@ -4348,8 +4432,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             </div>
             <h3>Fast Delivery</h3>
             <p>
-              Order today and receive your bag within 3–5 business days anywhere
-              in Nigeria.
+              Delivery nationwide across Nigeria within 3–6 working days.
             </p>
           </div>
           <div class="why-card">
@@ -4672,7 +4755,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
                   <circle cx="12" cy="10" r="3" /></svg
                 ><strong id="detail-stock">In Stock</strong>&nbsp;<span
                   id="detail-ship"
-                  >— Ships in 1–2 business days</span
+                  >— Delivery in 3–6 working days</span
                 ></span
               >
               <span
@@ -4734,7 +4817,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0110 0v4" />
               </svg>
-              No online payment. You confirm on WhatsApp.
+              No online payment. Bank transfer only through WhatsApp.
             </div>
           </div>
         </div>
@@ -4793,7 +4876,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0110 0v4" />
               </svg>
-              No online payment. You confirm on WhatsApp.
+              No online payment. Bank transfer only through WhatsApp.
             </div>
           </div>
         </div>
@@ -4941,7 +5024,8 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             >
               <strong>No online payment.</strong> Tap <em>Place order</em> and
               we save your order, then you send it to us on WhatsApp. We confirm
-              availability and delivery there, and you pay by bank transfer.
+              availability and delivery there, then share bank transfer
+              details. Bank transfer via WhatsApp is our only payment method.
             </div>
             <div
               id="checkout-error"
@@ -5225,10 +5309,8 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                We deliver within 3–5 business days to most locations in
-                Nigeria. Lagos orders often arrive within 1–2 business days.
-                You'll receive a tracking link via SMS and email once your order
-                ships.
+                We deliver nationwide within Nigeria in 3–6 working days.
+                Delivery timing may vary slightly by location and courier.
               </div>
             </div>
           </div>
@@ -5428,9 +5510,10 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                You do not pay on the website. Place your order, send it to us
-                on WhatsApp, and we confirm everything there. You can pay by
-                bank transfer.
+                Payment is by bank transfer only. Place your order on this
+                website, then send it to us on WhatsApp. We will confirm your
+                order and share bank transfer details with you there. We do not
+                offer pay on delivery.
               </div>
             </div>
           </div>
@@ -5451,7 +5534,8 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
                 No. We never collect card or bank details on this website.
-                Payment is arranged directly with us on WhatsApp.
+                  Payment is by bank transfer only, arranged directly with us on
+                  WhatsApp.
               </div>
             </div>
           </div>
@@ -5796,13 +5880,15 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         <h2>3. Payment</h2>
         <p>
           Orders are placed through this website and confirmed with you on
-          WhatsApp. We accept bank transfer. Payment details are shared with you on WhatsApp, and goods are dispatched once payment is confirmed.
+          WhatsApp. Bank transfer is our only accepted payment method. Payment
+          details are shared with you on WhatsApp, and goods are dispatched
+          once payment is confirmed. We do not offer pay on delivery.
         </p>
         <h2>4. Delivery</h2>
         <ul>
           <li>
-            We deliver nationwide within Nigeria. Standard delivery: 3–5
-            business days
+            We deliver nationwide within Nigeria. Standard delivery: 3–6
+            working days
           </li>
           <li>
             Delivery fees depend on the delivery city and state. Egbeda / Lagos
@@ -5967,7 +6053,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
         <div class="payment-icons">
           <span class="payment-icon">ORDER ON WHATSAPP</span
           ><span class="payment-icon">BANK TRANSFER</span
-          ><span class="payment-icon">DELIVERY WORLDWIDE(T&C'S)</span>
+          ><span class="payment-icon">DELIVERY NATIONWIDE</span>
         </div>
       </div>
     </footer>
@@ -6478,7 +6564,8 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
                 s.couponPercent +
                 "% off your first order"
               : "");
-        $("ann-bar").textContent = txt;
+        $("ann-message").textContent = txt;
+        $("ann-bar").hidden = store.get("bb_ann_dismissed", "") === txt;
         const special = (Array.isArray(s.areaDeliveryFees) ? s.areaDeliveryFees : [])
           .find((rule) => String(rule.state || "").trim().toLowerCase() === "lagos" &&
             String(rule.area || "").trim().toLowerCase() === "egbeda");
@@ -6593,6 +6680,12 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             el.textContent = n + " product" + (n === 1 ? "" : "s");
           }
         });
+      }
+
+      function closeAnnouncementBar() {
+        const message = $("ann-message").textContent;
+        store.set("bb_ann_dismissed", message);
+        $("ann-bar").hidden = true;
       }
       function loadCartFromStorage() {
         const saved = store.get("bb_cart", []);
@@ -6962,7 +7055,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
             : "In Stock";
         $("detail-ship").textContent = out
           ? "— message us on WhatsApp for restock"
-          : "— Ships in 1–2 business days";
+          : "— Delivery in 3–6 working days";
         const btn = $("detail-add");
         btn.disabled = out;
         btn.textContent = out ? "Sold out" : "Add to Cart";
@@ -7334,7 +7427,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           "\nTOTAL: " +
           fmt(o.total) +
           (o.notes ? "\nNotes: " + o.notes : "") +
-          "\n\nPlease confirm availability, delivery and how to pay. Thank you!"
+          "\n\nPayment is by bank transfer only via WhatsApp. Please confirm availability, delivery and payment details. Thank you!"
         );
       }
       async function placeOrder() {
@@ -7434,7 +7527,7 @@ section.hero.hero-photo{position:relative;display:flex;align-items:center;max-wi
           : "Almost there!";
         $("order-number").textContent = "Order #" + o.id;
         $("success-message").textContent = saved
-          ? "Your order is saved. One last step: tap the button below to send it to us on WhatsApp. We will confirm availability and delivery there, and arrange payment by bank transfer."
+          ? "Your order is saved. One last step: tap the button below to send it to us on WhatsApp. We will confirm availability and delivery there and share bank transfer details. Bank transfer via WhatsApp is our only payment method; we do not offer pay on delivery."
           : "Tap the button below to send your order to us on WhatsApp.";
         $("success-warning").style.display = saved ? "none" : "block";
         $("success-wa").href =
